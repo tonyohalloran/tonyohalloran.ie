@@ -1,9 +1,11 @@
 {{ define "main" }}
 <h1>Writing</h1>
-<p>Essays and notes on AI, research, and whatever else I'm thinking about.</p>
 
+{{ $posts := where (where .Site.RegularPages "Section" "writing") ".CurrentSection.Title" "Posts" }}
+{{ if $posts }}
+<h2 class="section-heading">Posts</h2>
 <ul class="writing-list">
-  {{ range .Pages.ByDate.Reverse }}
+  {{ range $posts.ByDate.Reverse }}
   <li>
     <a href="{{ .Permalink }}">
       <span class="title">{{ .Title }}</span>
@@ -13,4 +15,21 @@
   </li>
   {{ end }}
 </ul>
+{{ end }}
+
+{{ $other := where (where .Site.RegularPages "Section" "writing") ".CurrentSection.Title" "Other" }}
+{{ if $other }}
+<h2 class="section-heading">Other</h2>
+<ul class="writing-list">
+  {{ range $other.ByDate.Reverse }}
+  <li>
+    <a href="{{ .Permalink }}">
+      <span class="title">{{ .Title }}</span>
+      <span class="date">{{ .Date.Format "January 2006" }}</span>
+      {{ with .Params.summary }}<span class="summary">{{ . }}</span>{{ end }}
+    </a>
+  </li>
+  {{ end }}
+</ul>
+{{ end }}
 {{ end }}
