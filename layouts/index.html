@@ -2,23 +2,14 @@
 <div class="intro">
   <img src="/images/profile.jpeg" alt="Tony O'Halloran" class="profile-img">
   <p>
-    I'm an AI researcher based in Girona, Spain. I'm a Founding Research Scientist at
-    <a href="https://andromede.ai">Andromede</a>, building realistic RL environments
-    for training agents in the real world.
-  </p>
-  <p>
-    I was a <a href="https://www.pivotal-research.org/">Pivotal Research Fellow</a> working on
-    detecting covert distributed training. Before that, I completed my MSc in AI at University of Galway
-    (Best Thesis Award), with research at the <a href="https://www.light-research.ai/">Yale/EPFL LiGHT Lab</a>.
-  </p>
-  <p>
-    I write occasionally about AI, research, and other things I find interesting.
+    I'm a Founding Research Scientist at <a href="https://andromede.ai">Andromede</a>.
+    Previously a <a href="https://www.pivotal-research.org/">Pivotal Research Fellow</a>.
   </p>
 </div>
 
 {{ $posts := where .Site.RegularPages "Section" "writing" }}
 {{ if $posts }}
-<h2 class="section-heading">Recent Writing</h2>
+<h2 class="section-heading">Writing</h2>
 <ul class="writing-list">
   {{ range first 5 $posts }}
   <li>
@@ -31,7 +22,7 @@
   {{ end }}
 </ul>
 {{ if gt (len $posts) 5 }}
-<p><a href="/writing/">View all writing →</a></p>
+<p><a href="/writing/">View all →</a></p>
 {{ end }}
 {{ end }}
 {{ end }}
