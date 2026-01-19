@@ -1,0 +1,16 @@
+{{ define "main" }}
+<h1>Writing</h1>
+<p>Essays and notes on AI, research, and whatever else I'm thinking about.</p>
+
+<ul class="writing-list">
+  {{ range .Pages.ByDate.Reverse }}
+  <li>
+    <a href="{{ .Permalink }}">
+      <span class="title">{{ .Title }}</span>
+      <span class="date">{{ .Date.Format "January 2006" }}</span>
+      {{ with .Params.summary }}<span class="summary">{{ . }}</span>{{ end }}
+    </a>
+  </li>
+  {{ end }}
+</ul>
+{{ end }}

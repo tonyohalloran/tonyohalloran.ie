@@ -1,0 +1,39 @@
+{{ define "main" }}
+<div class="intro">
+  <img src="/images/profile.jpeg" alt="Tony O'Halloran" class="profile-img">
+  <p>
+    I'm an AI researcher based in Ireland. Currently I'm a Founding Research Scientist at
+    <a href="https://andromede.ai">Andromede AI</a>, building realistic RL environments for training agents,
+    and a Research Fellow at <a href="https://pivotal-research.org">Pivotal Research</a>,
+    working on AI governance and compute monitoring.
+  </p>
+  <p>
+    Previously I worked on AI for global health at <a href="https://light-research.ai">LiGHT</a>
+    (EPFL/Harvard/CMU-Africa) and the <a href="https://www.icrc.org/">ICRC</a>. I hold an MSc from EPFL
+    and a BS in Mathematics from UC Santa Barbara.
+  </p>
+  <p>
+    I write occasionally about AI, research, and other things I find interesting.
+    You can reach me at <a href="mailto:tony@tonyohalloran.ie">tony@tonyohalloran.ie</a>.
+  </p>
+</div>
+
+{{ $posts := where .Site.RegularPages "Section" "writing" }}
+{{ if $posts }}
+<h2 class="section-heading">Recent Writing</h2>
+<ul class="writing-list">
+  {{ range first 5 $posts }}
+  <li>
+    <a href="{{ .Permalink }}">
+      <span class="title">{{ .Title }}</span>
+      <span class="date">{{ .Date.Format "January 2006" }}</span>
+      {{ with .Params.summary }}<span class="summary">{{ . }}</span>{{ end }}
+    </a>
+  </li>
+  {{ end }}
+</ul>
+{{ if gt (len $posts) 5 }}
+<p><a href="/writing/">View all writing →</a></p>
+{{ end }}
+{{ end }}
+{{ end }}
