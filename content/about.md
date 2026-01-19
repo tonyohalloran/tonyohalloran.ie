@@ -6,12 +6,14 @@ title: "About"
 <img src="/images/profile.jpeg" alt="Tony O'Halloran" class="profile-img">
 <div class="intro">
 
-I'm an AI researcher based in Ireland, working on machine learning, AI safety, and applications of AI for global health.
+I'm an AI researcher based in Girona, Spain, working on reinforcement learning, AI safety, and applications of AI for global health.
 
 </div>
 </div>
 
-I'm currently completing my **MSc in Artificial Intelligence at University of Galway** while doing thesis research at the **Yale/EPFL Laboratory of Intelligent Global Health Technologies (LiGHT)**, where I'm building modular neural networks for large-scale datasets with systematic missingness.
+I work at **[Andromede](https://andromede.ai)**, building realistic RL environments for training agents in the real world.
+
+I recently completed my **MSc in Artificial Intelligence at University of Galway** (Best Thesis Award), with thesis research at the **Yale/EPFL Laboratory of Intelligent Global Health Technologies (LiGHT)** on modular neural networks for large-scale datasets with systematic missingness.
 
 I also serve as an **Associate Editor for Nature Digital Medicine**, reviewing papers and coordinating teams of reviewers each month.
 
@@ -21,38 +23,23 @@ Previously, I was **Applied AI Lead at Verodat**, building robust AI application
 
 <div class="cv-section">
 
-## Education
-
-<div class="cv-item">
-
-### MSc in Artificial Intelligence
-<span class="org">University of Galway</span> · <span class="dates">2023 – 2025</span>
-
-4.0 GPA. Coursework in Statistical ML, Deep Learning, Theory of ML, and Reinforcement Learning.
-
-</div>
-
-<div class="cv-item">
-
-### BSc in Mathematical Sciences
-<span class="org">University College Cork & UC Santa Barbara</span> · <span class="dates">2019 – 2022</span>
-
-University Scholar. Coursework in PDEs, Advanced Data Science, Statistical Analysis, and Research Topics in ML.
-
-</div>
-
-</div>
-
-<div class="cv-section">
-
 ## Experience
 
 <div class="cv-item">
 
-### Master's Thesis Student
-<span class="org">Yale/EPFL LiGHT Lab</span> · <span class="dates">2024 – Present</span>
+### AI Researcher
+<span class="org">Andromede</span> · <span class="dates">2025 – Present</span>
 
-Building modular neural networks for large-scale datasets with systematic missingness. Host and producer of the LiGHTCAST AI podcast for NGO partners at WHO, ICRC, and others.
+Building realistic RL environments for training agents in the real world.
+
+</div>
+
+<div class="cv-item">
+
+### Master's Thesis Researcher
+<span class="org">Yale/EPFL LiGHT Lab</span> · <span class="dates">2024 – 2025</span>
+
+Built modular neural networks for large-scale datasets with systematic missingness. Host and producer of the LiGHTCAST AI podcast for NGO partners at WHO, ICRC, and others.
 
 </div>
 
@@ -89,6 +76,30 @@ Developed an MVP package for assessing AI/ML model fairness.
 <span class="org">TY.ie</span> · <span class="dates">2016 – 2020</span>
 
 Multi-award-winning digital platform for Irish students. Acquired in 2017.
+
+</div>
+
+</div>
+
+<div class="cv-section">
+
+## Education
+
+<div class="cv-item">
+
+### MSc in Artificial Intelligence
+<span class="org">University of Galway</span> · <span class="dates">2023 – 2025</span>
+
+4.0 GPA. Best Thesis Award. Coursework in Statistical ML, Deep Learning, Theory of ML, and Reinforcement Learning.
+
+</div>
+
+<div class="cv-item">
+
+### BSc in Mathematical Sciences
+<span class="org">University College Cork & UC Santa Barbara</span> · <span class="dates">2019 – 2022</span>
+
+University Scholar. Coursework in PDEs, Advanced Data Science, Statistical Analysis, and Research Topics in ML.
 
 </div>
 
@@ -146,6 +157,7 @@ Research presented to government ministers, resulting in changes to national hea
 
 ## Recognition
 
+- **Best Thesis Award**, University of Galway MSc in AI
 - **Associate Editor**, Nature Digital Medicine
 - **Irish Times Debate Grand Finalist** — Final motion on data privacy and ethics
 - **Lord Mayor's Award** — For impact of applied mathematics research
