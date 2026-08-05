@@ -14,17 +14,25 @@ const fmt = (d: Date) =>
 
 <Base wide>
   <section class="hero">
-    <p class="kicker">Andromede · Pivotal Research · Girona</p>
-    <h1>I study how AI agents cheat.</h1>
-    <p class="hero-body">
-      Hi, I'm Tony. I'm a Founding Research Scientist at
-      <a href="https://andromede.ai">Andromede</a>, where we build RL
-      environments and benchmarks for frontier models, and a
-      <a href="https://www.pivotal-research.org/">Pivotal Research Fellow</a>
-      working on AI governance. Reward hacking, gamed verifiers, agents that
-      follow the letter of the spec straight off a cliff — that's the beat.
-      I live in Girona, which is also where the bikes are.
-    </p>
+    <div class="hero-text">
+      <p class="kicker">Andromede · Girona</p>
+      <h1>I study how AI agents cheat.</h1>
+      <p class="hero-body">
+        Hi, I'm Tony. I'm a Founding Research Scientist at
+        <a href="https://andromede.ai">Andromede</a>, where we build RL
+        environments and benchmarks for frontier models. Reward hacking,
+        gamed verifiers, agents that follow the letter of the spec straight
+        off a cliff — that's the beat. I live in Girona, which is also where
+        the bikes are.
+      </p>
+    </div>
+    <img
+      class="hero-img"
+      src="/images/profile.jpeg"
+      alt="Tony O'Halloran in a cycling helmet on a gravel road, grinning"
+      width="1400"
+      height="1050"
+    />
   </section>
 
   <Commissaire />
@@ -69,14 +77,33 @@ const fmt = (d: Date) =>
       <a href="/hikes"><strong>/hikes</strong><span>the best walks, with photographic evidence.</span></a>
       <a href="/shelf"><strong>/shelf</strong><span>what's on the e-reader right now.</span></a>
       <a href="/now"><strong>/now</strong><span>what I'm working on and reading at the moment.</span></a>
+      <a href="/guestbook"><strong>/guestbook</strong><span>the Swapnote wall — leave a note for the next visitor.</span></a>
     </div>
   </section>
 </Base>
 
 <style>
-  .hero { margin: 1.5rem 0 0; }
+  .hero {
+    margin: 1.5rem 0 0;
+    display: flex;
+    gap: 2.2rem;
+    align-items: center;
+  }
+  .hero-text { flex: 1 1 24rem; min-width: 0; }
   .hero h1 { font-size: clamp(2rem, 5.5vw, 3.2rem); margin: 0.2rem 0 1rem; }
   .hero-body { max-width: 40rem; font-size: 1.05rem; color: var(--ink-soft); }
+  .hero-img {
+    flex: 0 1 17rem;
+    width: 17rem;
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 760px) {
+    .hero { flex-direction: column; align-items: stretch; }
+    .hero-img { width: 100%; flex-basis: auto; }
+  }
 
   .home-section { margin-top: 3.5rem; }
 

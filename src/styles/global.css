@@ -232,6 +232,7 @@ main { padding: 2.5rem 0 4rem; }
   font-size: 0.72rem;
 }
 .smash-badge b { color: var(--accent); font-weight: 600; }
+.site-footer a.swapnote,
 .swapnote { display: inline-flex; align-items: center; gap: 0.45rem; }
 .swapnote svg { width: 1.4rem; height: auto; color: var(--accent); }
 

@@ -1,0 +1,182 @@
+---
+import Base from '../layouts/Base.astro';
+
+// The guestbook is a pinned GitHub issue; comments are the notes.
+// Zero backend: the page reads the public issue-comments API client-side.
+const REPO = 'tonyohalloran/tonyohalloran.ie';
+const ISSUE = 1;
+const issueUrl = `https://github.com/${REPO}/issues/${ISSUE}`;
+---
+
+<Base title="Guestbook" description="The Swapnote guestbook — leave a note.">
+  <p class="kicker">/guestbook · in memory of Swapnote, 2011–2013</p>
+  <h1 class="page-title">The guestbook</h1>
+  <p class="intro">
+    Swapnote let strangers' handwriting arrive on your 3DS overnight, and
+    nothing since has matched it. This is my attempt: leave a note and it
+    hangs here for the next visitor. Signing happens through GitHub — a
+    comment on <a href={issueUrl}>the guestbook issue</a> is a note on this
+    wall.
+  </p>
+
+  <p class="sign-row">
+    <a class="sign-btn" href={issueUrl} data-astro-reload>✎ leave a note</a>
+  </p>
+
+  <div id="gb-status" class="gb-status mono" role="status">fetching the notes…</div>
+  <noscript>
+    <p class="gb-status mono">
+      The wall needs JavaScript to load — but the notes themselves live on
+      <a href={issueUrl}>GitHub</a>, JavaScript-free.
+    </p>
+  </noscript>
+  <div id="gb-wall" class="gb-wall"></div>
+
+  <script define:vars={{ REPO, ISSUE, issueUrl }}>
+    const wall = document.getElementById('gb-wall');
+    const status = document.getElementById('gb-status');
+
+    function noteCard({ author, avatar, url, date, text }) {
+      const card = document.createElement('article');
+      card.className = 'note';
+      const head = document.createElement('div');
+      head.className = 'note-head';
+      if (avatar) {
+        const img = document.createElement('img');
+        img.src = avatar + '&s=80';
+        img.alt = '';
+        img.width = 28;
+        img.height = 28;
+        img.loading = 'lazy';
+        head.appendChild(img);
+      }
+      const who = document.createElement('a');
+      who.href = url;
+      who.textContent = author;
+      who.className = 'note-author mono';
+      head.appendChild(who);
+      const when = document.createElement('span');
+      when.className = 'note-date mono';
+      when.textContent = date;
+      head.appendChild(when);
+      const body = document.createElement('p');
+      body.className = 'note-body';
+      body.textContent = text; // textContent only: notes are untrusted input
+      card.appendChild(head);
+      card.appendChild(body);
+      return card;
+    }
+
+    async function load() {
+      try {
+        const res = await fetch(
+          `https://api.github.com/repos/${REPO}/issues/${ISSUE}/comments?per_page=100`,
+          { headers: { Accept: 'application/vnd.github+json' } }
+        );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const comments = await res.json();
+        if (comments.length === 0) {
+          status.textContent = 'no notes yet — the first page is blank and waiting.';
+          return;
+        }
+        status.remove();
+        for (const c of comments.reverse()) {
+          wall.appendChild(
+            noteCard({
+              author: c.user?.login ?? 'someone',
+              avatar: c.user?.avatar_url ?? '',
+              url: c.html_url,
+              date: new Date(c.created_at).toLocaleDateString('en-IE', {
+                day: 'numeric', month: 'short', year: 'numeric',
+              }),
+              text: c.body ?? '',
+            })
+          );
+        }
+      } catch {
+        status.innerHTML = '';
+        status.append('the wall didn’t load (GitHub rate limits anonymous reading) — the notes are all ');
+        const a = document.createElement('a');
+        a.href = issueUrl;
+        a.textContent = 'here on GitHub';
+        status.appendChild(a);
+        status.append('.');
+      }
+    }
+    load();
+  </script>
+</Base>
+
+<style>
+  .intro { color: var(--ink-soft); max-width: 40rem; }
+
+  .sign-row { margin: 1.6rem 0 2.2rem; }
+  .sign-btn {
+    display: inline-block;
+    padding: 0.65rem 1.3rem;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  .sign-btn:hover { background: var(--accent-bright); }
+
+  .gb-status { font-size: 0.8rem; color: var(--ink-faint); }
+
+  .gb-wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 1.1rem;
+    align-items: start;
+    margin-top: 0.5rem;
+  }
+
+  /* One Swapnote page: ruled paper, a top margin line, handwriting. */
+  .gb-wall :global(.note) {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background:
+      repeating-linear-gradient(
+        var(--bg-panel) 0,
+        var(--bg-panel) 1.55em,
+        color-mix(in srgb, var(--accent) 22%, var(--bg-panel)) 1.55em,
+        color-mix(in srgb, var(--accent) 22%, var(--bg-panel)) calc(1.55em + 1px)
+      );
+    background-position: 0 0.55em;
+    padding: 0.8rem 1rem 1rem;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+  .gb-wall :global(.note-head) {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.55rem;
+  }
+  .gb-wall :global(.note-head img) {
+    border-radius: 50%;
+    border: 1px solid var(--line);
+  }
+  .gb-wall :global(.note-author) {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .gb-wall :global(.note-author:hover) { color: var(--accent); }
+  .gb-wall :global(.note-date) {
+    margin-left: auto;
+    font-size: 0.68rem;
+    color: var(--ink-faint);
+  }
+  .gb-wall :global(.note-body) {
+    margin: 0;
+    font-family: 'Bradley Hand', 'Segoe Print', 'Comic Sans MS', cursive;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+</style>

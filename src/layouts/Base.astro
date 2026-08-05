@@ -50,7 +50,6 @@ const current = (p: string) =>
           <nav class="site-nav">
             <a href="/writing" aria-current={current('/writing')}>writing</a>
             <a href="/about" aria-current={current('/about')}>about</a>
-            <a href="https://github.com/tonyohalloran" title="GitHub">github</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Switch colour theme" aria-pressed="false">◐</button>
           </nav>
         </div>
@@ -85,10 +84,10 @@ const current = (p: string) =>
           <span class="smash-badge" title="Smash Bros Ultimate, current rotation">
             currently maining: <b>R.O.B.</b> · <b>Pikachu</b> · <b>Steve</b>
           </span>
-          <span class="swapnote" title="In memory of Swapnote, 2011–2013. Gone too soon.">
+          <a class="swapnote" href="/guestbook" title="In memory of Swapnote, 2011–2013. Gone too soon.">
             <svg viewBox="0 0 24 16" aria-hidden="true"><path d="M2 2 Q6 8 4 13 M7 4 Q12 2 13 8 Q14 13 9 12 M17 3 q3 5 0 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-            swapnote guestbook: coming soon
-          </span>
+            swapnote guestbook
+          </a>
         </div>
       </div>
     </footer>
