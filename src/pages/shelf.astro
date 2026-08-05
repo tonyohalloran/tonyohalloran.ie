@@ -3,39 +3,37 @@ import Base from '../layouts/Base.astro';
 import { shelf, films } from '../data/site';
 ---
 
-<Base title="Shelf" description="What's on the e-reader, and the ten-film warm canon.">
+<Base title="Shelf" description="What's on the e-reader right now.">
   <p class="kicker">/shelf</p>
   <h1 class="page-title">The shelf</h1>
+  <!-- TODO(tony): a line or two of intro in your voice, if you want one -->
   <p class="intro">
-    I learned to read at seven, alternating pages of <em>Harry Potter</em> with
-    my mum until I got impatient and took over the whole series. It stuck.
+    The current e-reader load, in full. Verdicts to follow as they're earned.
   </p>
 
   <ul class="shelf-list">
     {shelf.map((b) => (
       <li>
         <span class="shelf-title">{b.title}</span>
-        <p class="shelf-verdict">{b.verdict}</p>
+        {b.verdict && <p class="shelf-verdict">{b.verdict}</p>}
       </li>
     ))}
   </ul>
 
-  <section class="films">
-    <p class="kicker">The warm canon</p>
-    <h2>Ten films, in defence of craft and heart</h2>
-    <p class="intro">
-      The organising principle: <em>Paddington 2</em> is a perfect film, and
-      darkness is not depth. Ten slots, held to a high standard.
-    </p>
-    <ol class="film-list">
-      {films.map((f) => (
-        <li>
-          <span class="film-title">{f.title}</span>
-          <span class="film-line">{f.line}</span>
-        </li>
-      ))}
-    </ol>
-  </section>
+  {films.length > 0 && (
+    <section class="films">
+      <p class="kicker">The warm canon</p>
+      <h2>Ten films, in defence of craft and heart</h2>
+      <ol class="film-list">
+        {films.map((f) => (
+          <li>
+            <span class="film-title">{f.title}</span>
+            <span class="film-line">{f.line}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )}
 </Base>
 
 <style>
