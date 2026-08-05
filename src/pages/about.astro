@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import { links } from '../data/site';
+---
+
+<Base title="About" description="Who Tony O'Halloran is and how he got here.">
+  <p class="kicker">About</p>
+  <h1 class="page-title">Tony O'Halloran</h1>
+
+  <img src="/images/profile.jpeg" alt="Tony O'Halloran" class="profile-img" />
+
+  <div class="prose">
+    <p>
+      At <a href="https://andromede.ai">Andromede</a> I build the RL
+      environments and benchmarks that frontier models get graded on. The
+      question I keep coming back to: when you give an agent a rule to satisfy,
+      when does it play the game, and when does it play the <em>rules</em>?
+    </p>
+    <p>
+      Alongside that I'm a <a href="https://www.pivotal-research.org/">Pivotal
+      Research Fellow</a> (LISA, London) working on the technical side of AI
+      governance, and AI Advisor at <a href="https://www.thefocuscompany.co/">The Focus Co</a>.
+    </p>
+    <p>
+      Before this: MSc in AI at the University of Galway — thesis with
+      the <a href="https://www.light-research.ai/">Yale/EPFL LiGHT Lab</a>.
+      Before <em>that</em>: maths at
+      UCC and UC Santa Barbara, applied AI in industry, and at sixteen I
+      co-founded <a href="https://ty.ie">TY.ie</a>, a platform for Irish
+      students that was acquired in 2020.
+    </p>
+    <p>
+      I'm from Cork. I live in Girona, Catalonia — which anyone who follows
+      road cycling will recognise as a completely rational relocation.
+    </p>
+    <p class="footnote">
+      Formative years: Irish Mathematical Olympiad team, BT Young Scientist,
+      SciFest, Young Economist of the Year. I was that kid, and I regret
+      nothing.
+    </p>
+  </div>
+
+  <p class="contact mono">
+    <a href={links.github}>github</a> · <a href={links.linkedin}>linkedin</a> · <a href={links.scholar}>scholar</a>
+  </p>
+</Base>
+
+<style>
+  .profile-img {
+    width: 9rem; border-radius: 10px;
+    float: right; margin: 0 0 1rem 1.5rem;
+    border: 1px solid var(--line);
+  }
+  .footnote { font-size: 0.85rem; color: var(--ink-faint); }
+  .contact { margin-top: 2.5rem; font-size: 0.85rem; }
+  @media (max-width: 500px) {
+    .profile-img { float: none; margin: 0 0 1.2rem; }
+  }
+</style>

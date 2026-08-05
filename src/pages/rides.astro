@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro';
+import { rides, bikes } from '../data/site';
+---
+
+<Base title="Rides" description="The Catalan Pyrenees in one line each, and every bike I've ever owned as config files.">
+  <p class="kicker">/rides</p>
+  <h1 class="page-title">The local roads</h1>
+  <p class="intro">
+    I moved to Girona on purpose. These are the roads that justify the
+    decision, reviewed with the rigour they deserve.
+  </p>
+
+  <ul class="ride-list">
+    {rides.map((r) => (
+      <li>
+        <div class="ride-head">
+          <span class="ride-name">{r.name}</span>
+          <span class="ride-stats mono">{r.stats}</span>
+        </div>
+        <p class="ride-line">{r.line}</p>
+      </li>
+    ))}
+  </ul>
+
+  <section class="fleet">
+    <p class="kicker">The fleet, historical</p>
+    <h2>Every bike I have ever owned</h2>
+    <p class="intro">Rendered in the only format a bike deserves.</p>
+    <div class="bike-grid">
+      {bikes.map((b) => (
+        <div class="bike">
+          <div class="bike-file mono">{b.file}</div>
+          <pre class="mono">{b.yaml}</pre>
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  h2 { font-size: 1.4rem; margin: 0.2rem 0 0.6rem; }
+  .intro { color: var(--ink-soft); max-width: 38rem; }
+
+  .ride-list { list-style: none; margin: 2rem 0 0; padding: 0; }
+  .ride-list li { padding: 0.9rem 0; border-bottom: 1px dashed var(--line); }
+  .ride-head { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+  .ride-name { font-weight: 600; font-size: 1.05rem; }
+  .ride-stats { font-size: 0.72rem; color: var(--ink-faint); white-space: nowrap; }
+  .ride-line { margin: 0.25rem 0 0; color: var(--ink-soft); font-size: 0.92rem; }
+
+  .fleet { margin-top: 3.5rem; }
+  .bike-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+    margin-top: 1.4rem;
+  }
+  .bike {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--code-bg);
+  }
+  .bike-file {
+    font-size: 0.7rem; color: var(--ink-faint);
+    padding: 0.45rem 0.9rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-panel);
+  }
+  .bike pre {
+    margin: 0; padding: 0.8rem 0.9rem;
+    font-size: 0.72rem; line-height: 1.7;
+    background: none; border-radius: 0;
+  }
+</style>

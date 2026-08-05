@@ -1,0 +1,116 @@
+---
+import Base from '../layouts/Base.astro';
+import Commissaire from '../components/Commissaire.astro';
+import { getCollection } from 'astro:content';
+import { papers } from '../data/site';
+
+const posts = (await getCollection('writing', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-IE', { month: 'short', year: 'numeric' });
+---
+
+<Base wide>
+  <section class="hero">
+    <p class="kicker">Andromede · Pivotal Research · Girona</p>
+    <h1>I study how AI agents cheat.</h1>
+    <p class="hero-body">
+      Hi, I'm Tony. I'm a Founding Research Scientist at
+      <a href="https://andromede.ai">Andromede</a>, where we build RL
+      environments and benchmarks for frontier models, and a
+      <a href="https://www.pivotal-research.org/">Pivotal Research Fellow</a>
+      working on AI governance. Reward hacking, gamed verifiers, agents that
+      follow the letter of the spec straight off a cliff — that's the beat.
+      I live in Girona, which is also where the bikes are.
+    </p>
+  </section>
+
+  <Commissaire />
+
+  <section class="home-section">
+    <p class="kicker">Recent work</p>
+    <ul class="work-list">
+      {papers.map((p) => (
+        <li>
+          <span class="work-title">
+            {p.url ? <a href={p.url}>{p.title}</a> : p.title}
+          </span>
+          <span class="work-venue mono">{p.venue}</span>
+          <p class="work-note">{p.note}</p>
+        </li>
+      ))}
+    </ul>
+    <p class="more-link mono"><a href="/writing">everything, in one stream →</a></p>
+  </section>
+
+  {posts.length > 0 && (
+    <section class="home-section">
+      <p class="kicker">Writing</p>
+      <ul class="post-list">
+        {posts.map((p) => (
+          <li>
+            <a href={`/writing/${p.id}`}>
+              <span class="post-title">{p.data.title}</span>
+              <span class="post-date">{fmt(p.data.date)}</span>
+              {p.data.summary && <p class="post-summary">{p.data.summary}</p>}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <section class="home-section">
+    <p class="kicker">Elsewhere on this site</p>
+    <div class="else-grid">
+      <a href="/rides"><strong>/rides</strong><span>the Catalan Pyrenees, reviewed in one line each — plus every bike I've ever owned, as config files.</span></a>
+      <a href="/hikes"><strong>/hikes</strong><span>the best walks, with photographic evidence.</span></a>
+      <a href="/shelf"><strong>/shelf</strong><span>what's on the e-reader, and the ten-film warm canon.</span></a>
+      <a href="/now"><strong>/now</strong><span>current paper, current training block, current obsession.</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { margin: 1.5rem 0 0; }
+  .hero h1 { font-size: clamp(2rem, 5.5vw, 3.2rem); margin: 0.2rem 0 1rem; }
+  .hero-body { max-width: 40rem; font-size: 1.05rem; color: var(--ink-soft); }
+
+  .home-section { margin-top: 3.5rem; }
+
+  .work-list { list-style: none; margin: 0; padding: 0; }
+  .work-list li { padding: 0.8rem 0; border-bottom: 1px dashed var(--line); }
+  .work-title { font-weight: 600; font-size: 1.02rem; display: block; }
+  .work-venue { font-size: 0.72rem; color: var(--ink-faint); }
+  .work-note { margin: 0.3rem 0 0; color: var(--ink-soft); font-size: 0.92rem; }
+
+  .more-link { font-size: 0.8rem; margin-top: 0.9rem; }
+
+  .else-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1rem;
+  }
+  .else-grid a {
+    display: flex; flex-direction: column; gap: 0.3rem;
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 1rem 1.1rem;
+    text-decoration: none; color: var(--ink);
+    background: var(--bg-panel);
+  }
+  .else-grid a:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--ink) 8%, transparent);
+  }
+  .else-grid strong { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); }
+  .else-grid strong::after { content: ' →'; display: inline-block; }
+  .else-grid span { font-size: 0.88rem; color: var(--ink-soft); }
+  @media (prefers-reduced-motion: no-preference) {
+    .else-grid a { transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; }
+    .else-grid a:hover { transform: translateY(-2px); }
+    .else-grid strong::after { transition: transform 0.15s ease; }
+    .else-grid a:hover strong::after { transform: translateX(3px); }
+  }
+</style>

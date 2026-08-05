@@ -1,0 +1,114 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  wide?: boolean;
+}
+
+const {
+  title = "Tony O'Halloran",
+  description = 'AI researcher working on RL environments, evaluation, and AI governance.',
+  wide = false,
+} = Astro.props;
+
+const fullTitle = title === "Tony O'Halloran" ? title : `${title} · Tony O'Halloran`;
+const path = Astro.url.pathname;
+const current = (p: string) =>
+  path === p || path.startsWith(p + '/') ? 'page' : undefined;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#faf7f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#12100d" media="(prefers-color-scheme: dark)" />
+    <link rel="canonical" href={new URL(path, Astro.site)} />
+    <link rel="alternate" type="application/rss+xml" title="Tony O'Halloran — Writing" href="/rss.xml" />
+    <script is:inline>
+      // Set theme before paint to avoid a flash of the wrong scheme.
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') {
+        document.documentElement.dataset.theme = saved;
+      }
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class:list={['container', { wide }]}>
+        <div class="row">
+          <a class="site-title" href="/">tony@ohalloran:~$<span class="cursor"></span></a>
+          <nav class="site-nav">
+            <a href="/writing" aria-current={current('/writing')}>writing</a>
+            <a href="/about" aria-current={current('/about')}>about</a>
+            <a href="https://github.com/tonyohalloran" title="GitHub">github</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Switch colour theme" aria-pressed="false">◐</button>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class:list={['container', { wide }]}>
+        <slot />
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class:list={['container', { wide }]}>
+        <div class="row">
+          <span>© {new Date().getFullYear()} Tony O'Halloran</span>
+          <div class="footer-links">
+            <span class="footer-group">here:</span>
+            <a href="/rides">rides</a>
+            <a href="/hikes">hikes</a>
+            <a href="/shelf">shelf</a>
+            <a href="/now">now</a>
+            <span class="footer-group">elsewhere:</span>
+            <a href="https://tonyo.substack.com">substack</a>
+            <a href="https://github.com/tonyohalloran">github</a>
+            <a href="https://linkedin.com/in/tony-o-halloran-38098a142">linkedin</a>
+            <a href="https://scholar.google.com/citations?user=ywfC3g4AAAAJ">scholar</a>
+            <a href="/rss.xml">rss</a>
+          </div>
+        </div>
+        <div class="row footer-fun">
+          <span class="smash-badge" title="Smash Bros Ultimate, current rotation">
+            currently maining: <b>R.O.B.</b> · <b>Pikachu</b> · <b>Steve</b>
+          </span>
+          <span class="swapnote" title="In memory of Swapnote, 2011–2013. Gone too soon.">
+            <svg viewBox="0 0 24 16" aria-hidden="true"><path d="M2 2 Q6 8 4 13 M7 4 Q12 2 13 8 Q14 13 9 12 M17 3 q3 5 0 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            swapnote guestbook: coming soon
+          </span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const btn = document.getElementById('theme-toggle');
+      const isDarkNow = () => {
+        const root = document.documentElement;
+        return root.dataset.theme
+          ? root.dataset.theme === 'dark'
+          : matchMedia('(prefers-color-scheme: dark)').matches;
+      };
+      const sync = () => btn?.setAttribute('aria-pressed', String(isDarkNow()));
+      sync();
+      btn?.addEventListener('click', () => {
+        const next = isDarkNow() ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('theme', next);
+        sync();
+      });
+    </script>
+  </body>
+</html>

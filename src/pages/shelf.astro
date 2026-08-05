@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import { shelf, films } from '../data/site';
+---
+
+<Base title="Shelf" description="What's on the e-reader, and the ten-film warm canon.">
+  <p class="kicker">/shelf</p>
+  <h1 class="page-title">The shelf</h1>
+  <p class="intro">
+    I learned to read at seven, alternating pages of <em>Harry Potter</em> with
+    my mum until I got impatient and took over the whole series. It stuck.
+  </p>
+
+  <ul class="shelf-list">
+    {shelf.map((b) => (
+      <li>
+        <span class="shelf-title">{b.title}</span>
+        <p class="shelf-verdict">{b.verdict}</p>
+      </li>
+    ))}
+  </ul>
+
+  <section class="films">
+    <p class="kicker">The warm canon</p>
+    <h2>Ten films, in defence of craft and heart</h2>
+    <p class="intro">
+      The organising principle: <em>Paddington 2</em> is a perfect film, and
+      darkness is not depth. Ten slots, held to a high standard.
+    </p>
+    <ol class="film-list">
+      {films.map((f) => (
+        <li>
+          <span class="film-title">{f.title}</span>
+          <span class="film-line">{f.line}</span>
+        </li>
+      ))}
+    </ol>
+  </section>
+</Base>
+
+<style>
+  h2 { font-size: 1.4rem; margin: 0.2rem 0 0.6rem; }
+  .intro { color: var(--ink-soft); max-width: 38rem; }
+
+  .shelf-list { list-style: none; margin: 2rem 0 0; padding: 0; }
+  .shelf-list li { padding: 0.8rem 0; border-bottom: 1px dashed var(--line); }
+  .shelf-title { font-weight: 600; }
+  .shelf-verdict { margin: 0.2rem 0 0; color: var(--ink-soft); font-size: 0.92rem; }
+
+  .films { margin-top: 3.5rem; }
+  .film-list { margin: 1.5rem 0 0; padding-left: 1.6rem; }
+  .film-list li { padding: 0.35rem 0; }
+  .film-title { font-weight: 600; }
+  .film-line { color: var(--ink-soft); font-size: 0.92rem; margin-left: 0.5rem; }
+</style>

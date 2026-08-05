@@ -1,0 +1,101 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { papers, talks, links } from '../../data/site';
+
+// One stream: essays, papers, talks — chronological, no CV/blog split.
+const posts = (await getCollection('writing', ({ data }) => !data.draft)).map((p) => ({
+  kind: 'essay' as const,
+  title: p.data.title,
+  date: p.data.date,
+  url: `/writing/${p.id}`,
+  note: p.data.summary ?? '',
+  venue: '',
+}));
+
+const external = [
+  ...papers.map((p) => ({
+    kind: 'paper' as const,
+    title: p.title,
+    date: new Date(p.date + '-01'),
+    url: p.url,
+    note: p.note,
+    venue: p.venue,
+  })),
+  ...talks.map((t) => ({
+    kind: 'talk' as const,
+    title: t.title,
+    date: new Date(t.date + '-01-01'),
+    url: t.url,
+    note: t.note,
+    venue: t.venue,
+  })),
+];
+
+const stream = [...posts, ...external].sort(
+  (a, b) => b.date.valueOf() - a.date.valueOf()
+);
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-IE', { month: 'short', year: 'numeric' });
+---
+
+<Base title="Writing" description="Essays, papers, and talks — one stream.">
+  <p class="kicker">Stories and proofs</p>
+  <h1 class="page-title">Writing</h1>
+  <p class="intro">
+    Essays, papers, and talks, in one stream — I don't see why the funny ones
+    and the peer-reviewed ones should live on different pages.
+    {links.substack && <>Longer personal essays live on <a href={links.substack}>Substack</a>.</>}
+  </p>
+
+  <ul class="stream">
+    {stream.map((item) => (
+      <li>
+        <span class={`tag mono tag-${item.kind}`}>{item.kind}</span>
+        <div class="entry">
+          <span class="entry-title">
+            {item.url ? <a href={item.url}>{item.title}</a> : item.title}
+          </span>
+          {item.venue && <span class="entry-venue mono">{item.venue}</span>}
+          {item.note && <p class="entry-note">{item.note}</p>}
+        </div>
+        <span class="entry-date mono">{fmt(item.date)}</span>
+      </li>
+    ))}
+  </ul>
+</Base>
+
+<style>
+  .intro { color: var(--ink-soft); max-width: 38rem; }
+
+  .stream { list-style: none; margin: 2rem 0 0; padding: 0; }
+  .stream li {
+    display: grid;
+    grid-template-columns: 4.2rem 1fr auto;
+    gap: 0.9rem;
+    padding: 1rem 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .tag {
+    font-size: 0.65rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    align-self: start; margin-top: 0.25rem;
+    padding: 0.1rem 0.4rem; border-radius: 4px;
+    text-align: center;
+    border: 1px solid var(--line); color: var(--ink-faint);
+  }
+  .tag-paper { border-color: var(--accent); color: var(--accent); }
+  .tag-talk { border-color: var(--good); color: var(--good); }
+
+  .entry-title { font-weight: 600; }
+  .entry-venue { display: block; font-size: 0.7rem; color: var(--ink-faint); margin-top: 0.15rem; }
+  .entry-note { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--ink-soft); }
+  .entry-date { font-size: 0.72rem; color: var(--ink-faint); margin-top: 0.3rem; white-space: nowrap; }
+
+  @media (max-width: 600px) {
+    .stream li { grid-template-columns: 1fr; gap: 0.25rem; }
+    .tag { justify-self: start; width: max-content; }
+    .entry-date { margin-top: 0; }
+  }
+</style>

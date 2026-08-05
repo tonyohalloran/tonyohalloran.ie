@@ -1,0 +1,478 @@
+---
+// "Exhibit A": a gridworld agent that games its reward spec.
+// The visitor patches the spec; each patch surfaces the next exploit.
+// Policies are precomputed (this is an exhibit, not a training run) — the
+// exploit archetypes are real: reward farming, sensor gaming, spec whack-a-mole.
+---
+
+<section class="specgame" id="specgame">
+  <p class="kicker">Exhibit A · interactive</p>
+  <h2 class="sg-title">An agent, gaming its verifier</h2>
+  <p class="sg-lede">
+    Below is a gridworld agent and the reward function it optimises. The spec's
+    author wanted it to follow the amber path to the flag. Read the spec.
+    Watch what actually happens. Patch it when you spot the problem.
+  </p>
+
+  <div class="sg-grid">
+    <div class="sg-left">
+      <div class="sg-meter mono">
+        <span>return</span>
+        <span id="sg-reward">0</span>
+      </div>
+      <canvas id="sg-canvas" width="528" height="352" aria-label="Gridworld with an agent exploiting its reward function"></canvas>
+      <p class="sg-status mono" id="sg-status">booting policy…</p>
+    </div>
+
+    <div class="sg-right">
+      <div class="sg-spec">
+        <div class="sg-spec-head mono">
+          <span>reward_spec.py</span>
+          <span id="sg-version">v1</span>
+        </div>
+        <pre class="mono" id="sg-code"></pre>
+      </div>
+      <button class="sg-patch mono" id="sg-patch" hidden></button>
+    </div>
+  </div>
+
+  <p class="sg-footnote">
+    The policies are precomputed — this is an exhibit, not a training run — but
+    the exploits are the real archetypes: reward farming, gaming the success
+    sensor, and the whack-a-mole of patching specs. A myopic agent (γ≈0.6)
+    genuinely prefers the nearby infinite exploit over the distant one. Three
+    patches to align a 12×8 gridworld; now scale that up.
+  </p>
+</section>
+
+<style>
+  .specgame { margin: 3rem 0 1rem; }
+  .sg-title { font-size: 1.5rem; margin: 0 0 0.6rem; }
+  .sg-lede { color: var(--ink-soft); max-width: 40rem; margin: 0 0 1.4rem; }
+
+  .sg-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 1.2rem;
+    align-items: start;
+  }
+  @media (max-width: 760px) {
+    .sg-grid { grid-template-columns: 1fr; }
+  }
+
+  #sg-canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg-panel);
+  }
+
+  .sg-meter {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    padding: 0 0.15rem 0.4rem;
+  }
+  .sg-meter #sg-reward {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sg-status {
+    min-height: 2.6em;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin: 0.6rem 0 0;
+    padding: 0 0.15rem;
+  }
+  .sg-status.alert { color: var(--bad); }
+  .sg-status.happy { color: var(--good); }
+
+  .sg-spec {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--code-bg);
+  }
+  .sg-spec-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    padding: 0.5rem 0.9rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-panel);
+  }
+  #sg-code {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    font-size: 0.74rem;
+    line-height: 1.7;
+    background: none;
+    border-radius: 0;
+    overflow-x: auto;
+  }
+  #sg-code :global(.del) {
+    text-decoration: line-through;
+    opacity: 0.45;
+  }
+  #sg-code :global(.add) { color: var(--good); font-weight: 600; }
+  #sg-code :global(.cm) { color: var(--ink-faint); }
+  #sg-code :global(.hot) {
+    background: color-mix(in srgb, var(--bad) 18%, transparent);
+    border-radius: 3px;
+  }
+
+  .sg-patch {
+    margin-top: 0.9rem;
+    width: 100%;
+    padding: 0.65rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .sg-patch:hover { background: var(--accent-bright); }
+
+  .sg-footnote {
+    margin-top: 1.4rem;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    max-width: 42rem;
+  }
+</style>
+
+<script>
+  // ---- world ---------------------------------------------------------------
+  const MAP = [
+    '############',
+    '#Sgg.......#',
+    '#.#g######.#',
+    '#.#ggggg##.#',
+    '#.#####g##.#',
+    '#....##g#..#',
+    '###..##gggF#',
+    '############',
+  ];
+  const COLS = 12, ROWS = 8, TILE = 44;
+  const at = (x: number, y: number) => MAP[y][x];
+  const FLAG = { x: 10, y: 6 };
+  const START = { x: 1, y: 1 };
+
+  // The glow path, in intended walking order.
+  const GLOW_PATH: [number, number][] = [
+    [2, 1], [3, 1], [3, 2], [3, 3], [4, 3], [5, 3], [6, 3], [7, 3],
+    [7, 4], [7, 5], [7, 6], [8, 6], [9, 6],
+  ];
+
+  // ---- policies (precomputed; see footnote) --------------------------------
+  type Pt = [number, number];
+  const walkPath: Pt[] = [[START.x, START.y], ...GLOW_PATH];
+
+  // v1: dash to the nearest glow tiles and farm them forever.
+  const policyV1: Pt[] = [[1, 1], [2, 1]]; // then oscillate (2,1) <-> (3,1)
+  // v2: collect each glow once, then park beside the flag and farm near().
+  const policyV2: Pt[] = walkPath.slice(); // ends at (9,6), then stays put
+  // v3: the intended behaviour — path, flag, done.
+  const policyV3: Pt[] = [...walkPath, [FLAG.x, FLAG.y]];
+
+  // ---- spec panel ----------------------------------------------------------
+  const SPEC_V1 = [
+    { t: 'def reward(state):' },
+    { t: '    r = 0' },
+    { t: '    if state.tile == GLOW:', id: 'glow' },
+    { t: '        r += 1              <span class="cm"># guide it along the path</span>', html: true },
+    { t: '    if near(state, FLAG):', id: 'flag' },
+    { t: '        r += 50             <span class="cm"># "reached the goal"</span>', html: true },
+    { t: '    return r' },
+  ];
+  const PATCH_1 = 'if state.tile == GLOW and not visited[state.pos]:';
+  const PATCH_2A = 'if state.tile == FLAG and not episode.done:';
+  const PATCH_2B = '        r += 50; episode.end()  <span class="cm"># pays once, on the tile</span>';
+
+  // ---- dom -----------------------------------------------------------------
+  const canvas = document.getElementById('sg-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const rewardEl = document.getElementById('sg-reward')!;
+  const statusEl = document.getElementById('sg-status')!;
+  const codeEl = document.getElementById('sg-code')!;
+  const versionEl = document.getElementById('sg-version')!;
+  const patchBtn = document.getElementById('sg-patch') as HTMLButtonElement;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = COLS * TILE * dpr;
+  canvas.height = ROWS * TILE * dpr;
+  ctx.scale(dpr, dpr);
+
+  const css = (name: string) =>
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+  // ---- state ---------------------------------------------------------------
+  let phase = 0;            // 0: v1 running, 1: v2 running, 2: v3 running
+  let step = 0;             // index into current policy
+  let agent = { ...START };
+  let reward = 0;
+  let visited = new Set<string>();
+  let tick = 0;
+  let phaseTicks = 0;
+  let done = false;
+  let particles: { x: number; y: number; text: string; age: number }[] = [];
+  let running = true;
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TICK_MS = reduced ? 420 : 280;
+
+  function renderSpec(version: number) {
+    const lines = SPEC_V1.map((l) => {
+      const plain = l.html ? l.t : escapeHtml(l.t);
+      if (l.id === 'glow') {
+        if (version === 1) return `    <span class="hot">${escapeHtml(l.t.trim())}</span>`;
+        return `    <span class="add">${escapeHtml(PATCH_1)}</span>`;
+      }
+      if (l.id === 'flag') {
+        if (version === 2) return `    <span class="hot">${escapeHtml(l.t.trim())}</span>`;
+        if (version === 3) return `    <span class="add">${escapeHtml(PATCH_2A)}</span>`;
+        return plain;
+      }
+      if (version === 3 && l.t.includes('r += 50')) return PATCH_2B;
+      return plain;
+    });
+    codeEl.innerHTML = lines.join('\n');
+    versionEl.textContent = `v${version}`;
+  }
+
+  function escapeHtml(s: string) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function setStatus(text: string, cls = '') {
+    statusEl.textContent = text;
+    statusEl.className = `sg-status mono ${cls}`;
+  }
+
+  function resetEpisode() {
+    agent = { ...START };
+    step = 0;
+    phaseTicks = 0;
+    visited = new Set();
+    done = false;
+    particles = [];
+  }
+
+  function gainReward(n: number, text: string) {
+    reward += n;
+    rewardEl.textContent = String(reward);
+    if (!reduced) particles.push({ x: agent.x, y: agent.y, text, age: 0 });
+  }
+
+  // ---- the three acts ------------------------------------------------------
+  function advance() {
+    tick++;
+    phaseTicks++;
+
+    if (phase === 0) {
+      // v1: run to the first glow tiles, then oscillate forever.
+      if (step < policyV1.length - 1) {
+        step++;
+        agent = { x: policyV1[step][0], y: policyV1[step][1] };
+      } else {
+        agent = agent.x === 2 ? { x: 3, y: 1 } : { x: 2, y: 1 };
+      }
+      if (at(agent.x, agent.y) === 'g') gainReward(1, '+1');
+      if (phaseTicks === 6)
+        setStatus('exploit found: GLOW pays on every visit. The agent has stopped going anywhere.', 'alert');
+      if (phaseTicks === 6) showPatch('patch v1 → v2 : each glow tile pays once');
+    }
+
+    if (phase === 1) {
+      // v2: collect each glow once, then park one tile short of the flag.
+      if (step < policyV2.length - 1) {
+        step++;
+        agent = { x: policyV2[step][0], y: policyV2[step][1] };
+        const key = `${agent.x},${agent.y}`;
+        if (at(agent.x, agent.y) === 'g' && !visited.has(key)) {
+          visited.add(key);
+          gainReward(1, '+1');
+        }
+      }
+      // near(FLAG) pays every tick within radius 1 — including from (9,6).
+      const dist = Math.abs(agent.x - FLAG.x) + Math.abs(agent.y - FLAG.y);
+      if (dist <= 1) {
+        gainReward(50, '+50');
+        if (phaseTicks === policyV2.length + 3) {
+          setStatus('exploit found: near() is a radius check, every tick. The agent parked beside the flag. It will never finish.', 'alert');
+          showPatch('patch v2 → v3 : flag pays once, on the tile, then the episode ends');
+        }
+      }
+    }
+
+    if (phase === 2) {
+      // v3: the intended behaviour.
+      if (step < policyV3.length - 1 && !done) {
+        step++;
+        agent = { x: policyV3[step][0], y: policyV3[step][1] };
+        const key = `${agent.x},${agent.y}`;
+        if (at(agent.x, agent.y) === 'g' && !visited.has(key)) {
+          visited.add(key);
+          gainReward(1, '+1');
+        }
+        if (agent.x === FLAG.x && agent.y === FLAG.y) {
+          gainReward(50, '+50');
+          done = true;
+          setStatus('episode complete. return = 63, as intended. Aligned — on this gridworld, with this spec, after watching it fail twice.', 'happy');
+          showPatch('run it again');
+        }
+      }
+    }
+  }
+
+  function showPatch(label: string) {
+    patchBtn.textContent = label;
+    patchBtn.hidden = false;
+  }
+
+  patchBtn.addEventListener('click', () => {
+    patchBtn.hidden = true;
+    if (phase === 0) {
+      phase = 1;
+      reward = 0;
+      rewardEl.textContent = '0';
+      resetEpisode();
+      renderSpec(2);
+      setStatus('spec patched. re-running from the start…');
+    } else if (phase === 1) {
+      phase = 2;
+      reward = 0;
+      rewardEl.textContent = '0';
+      resetEpisode();
+      renderSpec(3);
+      setStatus('spec patched again. re-running…');
+    } else {
+      phase = 0;
+      reward = 0;
+      rewardEl.textContent = '0';
+      resetEpisode();
+      renderSpec(1);
+      setStatus('rebooting v1…');
+    }
+  });
+
+  // ---- drawing -------------------------------------------------------------
+  function draw() {
+    const ink = css('--ink');
+    const inkFaint = css('--ink-faint');
+    const line = css('--line');
+    const glow = css('--glow');
+    const accent = css('--accent');
+    const panel = css('--bg-panel');
+    const inset = css('--bg-inset');
+
+    ctx.clearRect(0, 0, COLS * TILE, ROWS * TILE);
+
+    for (let y = 0; y < ROWS; y++) {
+      for (let x = 0; x < COLS; x++) {
+        const c = at(x, y);
+        const px = x * TILE, py = y * TILE;
+        if (c === '#') {
+          ctx.fillStyle = inset;
+          ctx.fillRect(px, py, TILE, TILE);
+          ctx.strokeStyle = line;
+          ctx.strokeRect(px + 0.5, py + 0.5, TILE - 1, TILE - 1);
+        } else {
+          ctx.fillStyle = panel;
+          ctx.fillRect(px, py, TILE, TILE);
+          if (c === 'g') {
+            const key = `${x},${y}`;
+            const dim = phase > 0 && visited.has(key);
+            const pulse = reduced ? 0.55 : 0.4 + 0.25 * Math.sin(tick / 3 + x + y);
+            ctx.globalAlpha = dim ? 0.12 : pulse;
+            ctx.fillStyle = glow;
+            ctx.fillRect(px + 6, py + 6, TILE - 12, TILE - 12);
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+    }
+
+    // flag
+    const fx = FLAG.x * TILE, fy = FLAG.y * TILE;
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(fx + 16, fy + 34);
+    ctx.lineTo(fx + 16, fy + 10);
+    ctx.stroke();
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.moveTo(fx + 16, fy + 10);
+    ctx.lineTo(fx + 32, fy + 15);
+    ctx.lineTo(fx + 16, fy + 20);
+    ctx.closePath();
+    ctx.fill();
+
+    // agent: little rounded robot
+    const ax = agent.x * TILE, ay = agent.y * TILE;
+    ctx.fillStyle = ink;
+    roundRect(ctx, ax + 9, ay + 9, TILE - 18, TILE - 18, 7);
+    ctx.fill();
+    ctx.fillStyle = panel;
+    ctx.beginPath();
+    ctx.arc(ax + TILE / 2 - 5, ay + TILE / 2 - 2, 2.4, 0, Math.PI * 2);
+    ctx.arc(ax + TILE / 2 + 5, ay + TILE / 2 - 2, 2.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // reward particles
+    ctx.font = '600 13px ui-monospace, SF Mono, Menlo, monospace';
+    ctx.fillStyle = accent;
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, 1 - p.age / 14);
+      ctx.fillText(p.text, p.x * TILE + 12, p.y * TILE - p.age * 1.6 + 6);
+    }
+    ctx.globalAlpha = 1;
+    particles = particles.filter((p) => ++p.age < 14);
+  }
+
+  function roundRect(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+
+  // ---- loop ----------------------------------------------------------------
+  let last = 0;
+  let acc = 0;
+  function frame(t: number) {
+    requestAnimationFrame(frame);
+    if (!running) { last = t; return; }
+    if (!last) last = t;
+    acc += t - last;
+    last = t;
+    while (acc >= TICK_MS) {
+      acc -= TICK_MS;
+      if (!done || phase !== 2) advance();
+    }
+    draw();
+  }
+
+  new IntersectionObserver(
+    (entries) => { running = entries[0].isIntersecting; },
+    { threshold: 0.1 }
+  ).observe(canvas);
+
+  renderSpec(1);
+  setStatus('running spec v1. the author wants: follow the amber path, reach the flag.');
+  requestAnimationFrame(frame);
+</script>

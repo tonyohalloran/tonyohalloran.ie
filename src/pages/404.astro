@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Mechanical" description="This page has abandoned.">
+  <div class="crash">
+    <svg viewBox="0 0 120 80" class="bike-svg" aria-hidden="true">
+      <!-- an upside-down bike: wheels up, in the international gesture of defeat -->
+      <g stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round">
+        <circle cx="30" cy="30" r="16" />
+        <circle cx="90" cy="30" r="16" />
+        <path d="M30 30 L55 52 L90 30" />
+        <path d="M55 52 L48 30" />
+        <path d="M44 62 L66 62" />
+      </g>
+    </svg>
+    <p class="kicker">error 404 · somewhere outside toulouse</p>
+    <h1>Mechanical.</h1>
+    <p class="crash-body">
+      This page has abandoned. Walking to the nearest station.
+    </p>
+    <p class="mono"><a href="/">→ back to the start line</a></p>
+  </div>
+</Base>
+
+<style>
+  .crash { text-align: center; padding: 3rem 0; }
+  .bike-svg { width: 8rem; color: var(--ink-soft); margin-bottom: 1rem; }
+  h1 { font-size: 2.4rem; margin: 0.3rem 0 0.6rem; }
+  .crash-body { color: var(--ink-soft); }
+  .crash .mono { margin-top: 2rem; font-size: 0.85rem; }
+</style>

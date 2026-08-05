@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Keep the date honest — a stale /now page is worse than none.
+const updated = 'July 2026';
+---
+
+<Base title="Now" description="What Tony is doing at the moment.">
+  <p class="kicker">/now · updated {updated}</p>
+  <h1 class="page-title">At the moment</h1>
+
+  <div class="now-list">
+    <section>
+      <h2 class="mono">research</h2>
+      <p>
+        Editing a paper about stress-testing the verifiers we use to grade AI
+        agents. The agents keep finding ways to pass without doing the work,
+        which is bad for the field and excellent for the paper.
+      </p>
+    </section>
+    <section>
+      <h2 class="mono">reading</h2>
+      <p>
+        <em>Reasons and Persons</em>, slowly, and <em>The Rider</em>, quickly.
+        One of them is about suffering on a bicycle and the other is by Tim
+        Krabbé.
+      </p>
+    </section>
+    <section>
+      <h2 class="mono">obsession</h2>
+      <p>
+        Currently between obsessions. Historically this has never lasted more
+        than a week.
+      </p>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .now-list section { padding: 1rem 0; border-bottom: 1px dashed var(--line); }
+  .now-list h2 {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--accent); margin: 0 0 0.4rem;
+  }
+  .now-list p { margin: 0; color: var(--ink-soft); }
+</style>

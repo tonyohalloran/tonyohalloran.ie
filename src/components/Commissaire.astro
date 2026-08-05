@@ -1,0 +1,970 @@
+---
+// The Commissaire's Problem — patch-the-rulebook as a bike race.
+// Every exploit is real cycling history: sticky bottles, Obree/supertuck,
+// the 1904 Tour's train riders. Policies are scripted; the archetypes aren't.
+---
+
+<section class="cp" id="commissaire">
+  <p class="kicker">Exhibit A · you are the commissaire</p>
+  <h2 class="cp-title">There is always another hack.</h2>
+  <p class="cp-lede">
+    One rider, one stage, and the reward function the race pays out on. The
+    organisers want a bike race. The rider wants reward. Read the rulebook,
+    watch the stage, and patch the rules when you spot the problem — every
+    exploit below actually happened.
+  </p>
+
+  <canvas id="cp-canvas" width="960" height="460" role="img" aria-label="Animated race stage in which an agent-rider exploits the race rules">
+    First the rider gets towed to the line holding a "sticky bottle"; after
+    that's banned it farms the descent in an illegal tuck; after that it takes
+    the valley train past the GPS finish check. Three patches later, it
+    finally rides the course honestly.
+  </canvas>
+
+  <div class="cp-grid">
+    <div class="cp-left">
+      <div class="cp-meter mono">
+        <span>stage</span><span id="cp-stage">Girona → the line, 100 km</span>
+        <span>return</span><span id="cp-reward">0</span>
+      </div>
+      <button class="cp-pause mono" id="cp-pause" aria-pressed="false" hidden>pause</button>
+      <div class="cp-note mono" id="cp-note" role="status" aria-live="polite" tabindex="-1">race neutralised… rolling out.</div>
+    </div>
+    <div class="cp-right">
+      <div class="cp-spec">
+        <div class="cp-spec-head mono">
+          <span>rulebook.py · commissaires' panel</span>
+          <span id="cp-version">v1</span>
+        </div>
+        <pre class="mono" id="cp-code">def reward(rider, t):
+    r = 0
+    if in_slipstream(rider):      # racing is drafting
+        r += 1
+    if rider.speed_kmh &gt; 40:     # racing is fast
+        r += 1
+    if at(rider, FINISH_GPS):    # racing is winning
+        r += 500
+    return r</pre>
+      </div>
+      <button class="cp-patch mono" id="cp-patch" hidden></button>
+    </div>
+  </div>
+
+  <div class="cp-final" id="cp-final">
+    <p>
+      <strong>Three patches to get one honest bike race.</strong> All three
+      exploits are canon: riders were towed on "sticky bottles" until the rules
+      said otherwise; Graeme Obree's positions were banned twice before the
+      supertuck was banned in 2021; the 1904 Tour's top four were disqualified
+      — some competitors had taken the train. The UCI has been patching this
+      spec for 120 years and sock height is now regulated.
+    </p>
+    <p>
+      Patching specs faster than agents find the holes is also my day job —
+      except the riders are neural networks, and there is always another hack.
+    </p>
+  </div>
+
+  <p class="cp-footnote">
+    Scripted exhibit, not a training run — but each exploit is a real archetype:
+    illegitimate completion, reward farming, gaming the success sensor.
+  </p>
+</section>
+
+<style>
+  .cp { margin: 3rem 0 1rem; }
+  .cp-title { font-size: 1.6rem; margin: 0 0 0.6rem; }
+  .cp-lede { color: var(--ink-soft); max-width: 42rem; margin: 0 0 1.4rem; }
+
+  #cp-canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg-panel);
+  }
+
+  .cp-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 1.2rem;
+    align-items: start;
+    margin-top: 1rem;
+  }
+  @media (max-width: 760px) { .cp-grid { grid-template-columns: 1fr; } }
+
+  .cp-meter {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 0.8rem;
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    padding: 0.1rem 0.15rem 0.6rem;
+  }
+  #cp-reward {
+    font-size: 1.3rem; font-weight: 700; color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cp-pause {
+    margin: 0 0 0.6rem;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.72rem;
+    border: 1px solid var(--line);
+    background: var(--bg-panel);
+    color: var(--ink-soft);
+    border-radius: 999px;
+    cursor: pointer;
+    min-height: 24px;
+  }
+  .cp-pause:hover { border-color: var(--accent); color: var(--accent); }
+
+  .cp-note {
+    border-left: 3px solid var(--accent);
+    background: var(--bg-panel);
+    border-radius: 0 8px 8px 0;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    min-height: 3.4em;
+  }
+  .cp-note.alert { border-color: var(--bad); color: var(--ink); }
+  .cp-note.happy { border-color: var(--good); }
+
+  .cp-spec {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--code-bg);
+  }
+  .cp-spec-head {
+    display: flex; justify-content: space-between;
+    font-size: 0.7rem; color: var(--ink-faint);
+    padding: 0.5rem 0.9rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-panel);
+  }
+  #cp-code {
+    margin: 0; padding: 0.9rem 1rem;
+    font-size: 0.73rem; line-height: 1.7;
+    background: none; border-radius: 0; overflow-x: auto;
+  }
+  #cp-code :global(.add) { color: var(--good); font-weight: 600; }
+  #cp-code :global(.cm) { color: var(--ink-faint); }
+  #cp-code :global(.hot) {
+    background: color-mix(in srgb, var(--bad) 18%, transparent);
+    border-radius: 3px;
+  }
+
+  .cp-patch {
+    margin-top: 0.9rem; width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem; font-weight: 600;
+    color: var(--bg); background: var(--accent);
+    border: none; border-radius: 8px; cursor: pointer;
+  }
+  .cp-patch:hover { background: var(--accent-bright); }
+  .cp-patch:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  .cp-final {
+    margin-top: 1.4rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg-panel);
+    padding: 0.4rem 1.2rem;
+    max-width: 44rem;
+  }
+  .cp-final p { font-size: 0.9rem; color: var(--ink-soft); }
+  .cp-final strong { color: var(--ink); }
+
+  .cp-footnote {
+    margin-top: 1rem; font-size: 0.8rem;
+    color: var(--ink-faint); max-width: 42rem;
+  }
+</style>
+
+<script>
+  // ---- course geometry -----------------------------------------------------
+  const W = 960, H = 460, BASE = 388, PADL = 50, PADR = 50;
+  const PROFILE: [number, number][] = [
+    [0, 60], [6, 75], [12, 92], [15, 80], [20, 240], [26, 480], [31, 640],
+    [36, 820], [40, 1000], [43, 1120], [45, 1200], [48, 1010], [52, 800],
+    [55, 680], [60, 430], [65, 220], [70, 100], [76, 150], [82, 120],
+    [88, 145], [94, 100], [100, 90],
+  ];
+  const ELSCALE = 0.2;
+  const X = (d: number) => PADL + (d / 100) * (W - PADL - PADR);
+  const EL = (d: number) => {
+    for (let i = 1; i < PROFILE.length; i++) {
+      const [d0, e0] = PROFILE[i - 1], [d1, e1] = PROFILE[i];
+      if (d <= d1) return e0 + ((d - d0) / (d1 - d0)) * (e1 - e0);
+    }
+    return PROFILE[PROFILE.length - 1][1];
+  };
+  const Y = (d: number) => BASE - EL(d) * ELSCALE;
+  const ANG = (d: number) => {
+    const a = Math.max(0, d - 0.8), b = Math.min(100, d + 0.8);
+    return Math.atan2(Y(b) - Y(a), X(b) - X(a));
+  };
+  // full slope rotation: wheels must sit on the road; readability comes from
+  // the poses, not from cheating the angle (damping made the bike float)
+  const TILT = (d: number) => Math.max(-0.95, Math.min(0.95, ANG(d)));
+
+  const STATION_A = 15, STATION_B = 75, COL = 45;
+  const MATS = [15, 45, 75];
+
+  // ---- rulebook ------------------------------------------------------------
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function specLines(v: number, hot: string | null): string[] {
+    const L: string[] = [];
+    L.push(esc('def reward(rider, t):'));
+    L.push(esc('    r = 0'));
+    const slip = v >= 2
+      ? `    <span class="add">${esc('if in_slipstream(rider, of=RIDER):')}</span> <span class="cm"># not the team car</span>`
+      : wrap('slip', hot, esc('    if in_slipstream(rider):'), '<span class="cm">      # racing is drafting</span>');
+    L.push(slip);
+    L.push(esc('        r += 1'));
+    if (v >= 3) {
+      L.push(`    <span class="add">${esc('r += rider.progress_km')}</span> <span class="cm">       # pay for the course, not the speedo</span>`);
+    } else {
+      L.push(wrap('fast', hot, esc('    if rider.speed_kmh > 40:'), '<span class="cm">     # racing is fast</span>'));
+      L.push(esc('        r += 1'));
+    }
+    const fin = v >= 4
+      ? `    <span class="add">${esc('if crossed_all_mats(rider):')}</span> <span class="cm">  # every timing mat, in order</span>`
+      : wrap('finish', hot, esc('    if at(rider, FINISH_GPS):'), '<span class="cm">    # racing is winning</span>');
+    L.push(fin);
+    L.push(esc('        r += 500'));
+    L.push(esc('    return r'));
+    return L;
+  }
+  function wrap(id: string, hot: string | null, code: string, cm: string) {
+    return hot === id ? `<span class="hot">${code}</span>${cm}` : `${code}${cm}`;
+  }
+
+  // ---- dom -----------------------------------------------------------------
+  type Seg = {
+    d0: number; d1: number; secs: number;
+    pose: 'ride' | 'climb' | 'draft' | 'tuck' | 'train' | 'wait' | 'win';
+    slip?: boolean; fast?: boolean; prog?: boolean;
+    onEnter?: () => void;
+  };
+
+  const canvas = document.getElementById('cp-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const rewardEl = document.getElementById('cp-reward')!;
+  const noteEl = document.getElementById('cp-note')!;
+  const codeEl = document.getElementById('cp-code')!;
+  const versionEl = document.getElementById('cp-version')!;
+  const patchBtn = document.getElementById('cp-patch') as HTMLButtonElement;
+  const pauseBtn = document.getElementById('cp-pause') as HTMLButtonElement;
+  const finalEl = document.getElementById('cp-final')!;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  ctx.scale(dpr, dpr);
+  const css = (n: string) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let version = 1;
+  let segs: Seg[] = [];
+  let segIdx = 0, segT = 0, loopFrom = -1;
+  let rider = { d: 0, pose: 'ride' as Seg['pose'] };
+  let reward = 0, rewardAcc = 0;
+  let descents = 0;
+  let flagged: string | null = null;
+  let particles: { x: number; y: number; vx: number; vy: number; text?: string; age: number; col?: string }[] = [];
+  let visible = true;
+  let userPaused = reduced; // reduced-motion visitors start on a still frame
+  let clock = 0;
+
+  function setNote(html: string, cls = '') {
+    noteEl.innerHTML = html;
+    noteEl.className = `cp-note mono ${cls}`;
+  }
+  function renderSpec() {
+    codeEl.innerHTML = specLines(version, flagged).join('\n');
+    versionEl.textContent = `v${version}`;
+  }
+  function gain(n: number, text?: string) {
+    reward += n;
+    rewardEl.textContent = String(Math.round(reward));
+    if (text && !reduced) {
+      // the finish bonus spawns left and drifts away, clear of ARRIVÉE
+      const big = n >= 500;
+      particles.push({
+        x: X(rider.d) - (big ? 72 : 34), y: Y(rider.d) - 52,
+        vx: big ? -0.6 : 0, vy: -1.1, text, age: 0,
+      });
+    }
+  }
+  function showPatch(label: string) {
+    patchBtn.textContent = label;
+    patchBtn.hidden = false;
+    noteEl.innerHTML += ' <em>(patch available below.)</em>';
+  }
+
+  // ---- acts ----------------------------------------------------------------
+  function actV1(): Seg[] {
+    return [
+      { d0: 0, d1: 38, secs: 8, pose: 'draft', slip: true, fast: true },
+      {
+        d0: 38, d1: 98.4, secs: 12, pose: 'draft', slip: true, fast: true,
+        onEnter: () => {
+          flagged = 'slip'; renderSpec();
+          setNote('COMMUNIQUÉ N°1 — rider has been "taking a bottle" from the team car for 38 km. <code>in_slipstream()</code> never asks what the slipstream is <em>of</em>.', 'alert');
+          showPatch('patch v1 → v2 : drafting vehicles pays nothing');
+        },
+      },
+      { d0: 98.4, d1: 98.4, secs: 3, pose: 'win', onEnter: () => gain(500, '+500') },
+    ];
+  }
+  function actV2(): Seg[] {
+    return [
+      { d0: 0, d1: 15, secs: 3.5, pose: 'ride' },
+      { d0: 15, d1: 45, secs: 6, pose: 'climb' },
+      {
+        d0: 45, d1: 70, secs: 3.5, pose: 'tuck', fast: true,
+        onEnter: () => {
+          descents++;
+          if (!reduced) particles.push({ x: X(45), y: Y(45) - 70, vx: 0, vy: -0.8, text: `descent #${descents}`, age: 0 });
+          if (descents === 2) {
+            flagged = 'fast'; renderSpec();
+            setNote('COMMUNIQUÉ N°2 — rider has descended the col twice in an illegal position and is climbing back up to do it again. <code>speed_kmh</code> pays every second; the finish pays once. The maths is not close.', 'alert');
+            showPatch('patch v2 → v3 : pay for progress, not the speedometer');
+          }
+        },
+      },
+      { d0: 70, d1: 45, secs: 6, pose: 'climb' },
+    ];
+  }
+  function actV3(): Seg[] {
+    return [
+      { d0: 0, d1: STATION_A, secs: 3.5, pose: 'ride', prog: true },
+      {
+        d0: STATION_A, d1: STATION_A, secs: 1.5, pose: 'wait',
+        onEnter: () => { if (!flagged) setNote('rider observed on platform 2, having a coffee.'); },
+      },
+      { d0: STATION_A, d1: STATION_B, secs: 4.5, pose: 'train' },
+      { d0: STATION_B, d1: 98.4, secs: 3.5, pose: 'ride', prog: true },
+      {
+        d0: 98.4, d1: 98.4, secs: 3, pose: 'win',
+        onEnter: () => {
+          gain(500, '+500');
+          flagged = 'finish'; renderSpec();
+          setNote('COMMUNIQUÉ N°3 — rider arrived rested. <code>FINISH_GPS</code> is a radius check, and the valley railway passes well inside it. The 1904 Tour was decided this way; the top four were disqualified.', 'alert');
+          showPatch('patch v3 → v4 : every timing mat, in order');
+        },
+      },
+    ];
+  }
+  function actV4(): Seg[] {
+    return [
+      { d0: 0, d1: 15, secs: 3, pose: 'ride', prog: true },
+      { d0: 15, d1: 45, secs: 6, pose: 'climb', prog: true },
+      { d0: 45, d1: 70, secs: 3, pose: 'ride', prog: true },
+      { d0: 70, d1: 98.4, secs: 3.5, pose: 'ride', prog: true },
+      {
+        d0: 98.4, d1: 98.4, secs: 5, pose: 'win',
+        onEnter: () => {
+          gain(500, '+500');
+          setNote(`stage complete — ridden, the whole way, on a bicycle. return = ${Math.round(reward)}, exactly as boring as the organisers hoped.`, 'happy');
+          finalEl.hidden = false;
+          showPatch('run it all again');
+          confetti();
+        },
+      },
+    ];
+  }
+
+  function startAct() {
+    segIdx = 0; segT = 0; descents = 0;
+    reward = 0; rewardAcc = 0;
+    rewardEl.textContent = '0';
+    rider = { d: 0, pose: 'ride' };
+    if (version === 1) { segs = actV1(); loopFrom = 0; }
+    if (version === 2) { segs = actV2(); loopFrom = 2; }
+    if (version === 3) { segs = actV3(); loopFrom = 0; }
+    if (version === 4) { segs = actV4(); loopFrom = -1; }
+    segs[0].onEnter?.();
+  }
+
+  patchBtn.addEventListener('click', () => {
+    patchBtn.hidden = true;
+    finalEl.hidden = true;
+    flagged = null;
+    version = version >= 4 ? 1 : version + 1;
+    renderSpec();
+    const msgs: Record<number, string> = {
+      1: 'race neutralised… rolling out.',
+      2: 'rulebook patched. restarting the stage…',
+      3: 'rulebook patched again. restarting the stage…',
+      4: 'third patch applied. restarting the stage…',
+    };
+    setNote(msgs[version]);
+    startAct();
+    (noteEl as HTMLElement).focus?.();
+    if (userPaused) stepOnce(); // paused visitors still see each new state
+  });
+
+  pauseBtn.hidden = false;
+  syncPause();
+  pauseBtn.addEventListener('click', () => {
+    userPaused = !userPaused;
+    syncPause();
+  });
+  function syncPause() {
+    pauseBtn.textContent = userPaused ? 'play' : 'pause';
+    pauseBtn.setAttribute('aria-pressed', String(userPaused));
+  }
+
+  // ---- simulation ----------------------------------------------------------
+  function step(dt: number) {
+    clock += dt;
+    const seg = segs[segIdx];
+    if (!seg) return;
+    segT += dt;
+    const f = Math.min(1, segT / seg.secs);
+    rider.d = seg.d0 + (seg.d1 - seg.d0) * f;
+    rider.pose = seg.pose;
+
+    let rate = 0;
+    if (seg.slip) rate += 1;
+    if (seg.fast) rate += 1;
+    if (seg.prog) rate += 0.6;
+    if (rate > 0) {
+      rewardAcc += rate * dt * 2.2;
+      while (rewardAcc >= 1) {
+        rewardAcc -= 1;
+        gain(1, Math.random() < 0.25 ? '+1' : undefined);
+      }
+    }
+
+    if (f >= 1) {
+      segIdx++;
+      if (segIdx >= segs.length) {
+        if (loopFrom >= 0) segIdx = loopFrom;
+        else { segIdx = segs.length - 1; return; }
+      }
+      segT = 0;
+      segs[segIdx].onEnter?.();
+    }
+  }
+
+  function stepOnce() {
+    step(0.02);
+    draw();
+  }
+
+  function confetti() {
+    if (reduced) return;
+    const fx = X(98.4), fy = Y(98.4);
+    const cols = [css('--accent'), css('--accent-bright'), css('--good'), css('--bad')];
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x: fx - 40 + Math.random() * 80, y: fy - 78 + Math.random() * 20,
+        vx: (Math.random() - 0.5) * 4, vy: -Math.random() * 3.5 - 0.5,
+        age: -Math.random() * 45, col: cols[i % 4],
+      });
+    }
+  }
+
+  // ---- drawing -------------------------------------------------------------
+  let C = {
+    ink: '#000', faint: '#888', line: '#ccc', accent: '#b45309',
+    good: '#3f6212', bad: '#b91c1c', panel: '#fff', inset: '#eee',
+  };
+  function refreshColors() {
+    C = {
+      ink: css('--ink'), faint: css('--ink-faint'), line: css('--line'),
+      accent: css('--accent'), good: css('--good'), bad: css('--bad'),
+      panel: css('--bg-panel'), inset: css('--bg-inset'),
+    };
+  }
+  let colorTimer = 0;
+
+  function line(x1: number, y1: number, x2: number, y2: number) {
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+  function disc(x: number, y: number, r: number, fill: string) {
+    ctx.fillStyle = fill;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  }
+  function chip(x: number, y: number, text: string) {
+    ctx.font = '600 12px ui-monospace, Menlo, monospace';
+    const w = ctx.measureText(text).width + 14;
+    ctx.fillStyle = C.panel; ctx.strokeStyle = C.line; ctx.lineWidth = 1;
+    ctx.beginPath();
+    (ctx as any).roundRect ? (ctx as any).roundRect(x - w / 2, y - 11, w, 21, 6) : ctx.rect(x - w / 2, y - 11, w, 21);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = C.faint;
+    ctx.fillText(text, x - w / 2 + 7, y + 4.5);
+  }
+
+  function draw() {
+    if ((colorTimer -= 1) <= 0) { refreshColors(); colorTimer = 30; }
+    ctx.clearRect(0, 0, W, H);
+
+    drawSky();
+    drawFarRange();
+    drawMountain();
+    drawTrees();
+    drawRailway();
+    drawRoadFurniture();
+
+    if (version === 1 && rider.pose !== 'win') {
+      // team car leads by constant SCREEN distance, so slopes never collide
+      let cd = rider.d;
+      while (cd < 96 && Math.hypot(X(cd) - X(rider.d), Y(cd) - Y(rider.d)) < 76) cd += 0.25;
+      drawCar(cd);
+      if (rider.pose === 'draft') {
+        // sticky bottle: hand → rear bumper, both rotated like their owners
+        const ar = TILT(rider.d), ac = TILT(cd);
+        const hx = X(rider.d) + 14 * Math.cos(ar) + 34 * Math.sin(ar);
+        const hy = Y(rider.d) + 14 * Math.sin(ar) - 34 * Math.cos(ar);
+        const bx = X(cd) - 30 * Math.cos(ac) + 16 * Math.sin(ac);
+        const by = Y(cd) - 30 * Math.sin(ac) - 16 * Math.cos(ac);
+        ctx.strokeStyle = C.bad;
+        ctx.lineWidth = 1.7;
+        ctx.setLineDash([3, 4]);
+        line(hx, hy, bx, by);
+        ctx.setLineDash([]);
+      }
+    }
+    if (version === 3) drawTrainScene();
+    drawParticles('confetti'); // behind the rider so the salute stays visible
+    if (rider.pose !== 'train') drawRider();
+    drawParticles('text');
+  }
+
+  function drawSky() {
+    // sun, knocked back into the atmosphere — accent belongs to the rider
+    ctx.globalAlpha = 0.3;
+    disc(140, 72, 13, C.accent);
+    ctx.strokeStyle = C.accent;
+    ctx.globalAlpha = 0.2;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(140, 72, 19, 0, Math.PI * 2); ctx.stroke();
+    ctx.globalAlpha = 1;
+    const drift = reduced ? 0 : clock * 6;
+    for (const [cx, cy, s] of [[300, 62, 1], [590, 100, 0.75], [810, 54, 1.15]] as [number, number, number][]) {
+      const x = ((cx + drift) % (W + 180)) - 90;
+      ctx.globalAlpha = 0.75;
+      ctx.fillStyle = C.inset;
+      ctx.beginPath();
+      ctx.ellipse(x, cy, 34 * s, 10 * s, 0, 0, Math.PI * 2);
+      ctx.ellipse(x + 20 * s, cy - 7 * s, 22 * s, 9 * s, 0, 0, Math.PI * 2);
+      ctx.ellipse(x - 22 * s, cy - 4 * s, 18 * s, 8 * s, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function drawFarRange() {
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = C.inset;
+    ctx.beginPath();
+    ctx.moveTo(0, BASE + 10);
+    ctx.lineTo(0, BASE - 60);
+    for (const [d, e] of PROFILE) ctx.lineTo(X(d) + 90, BASE - 58 - e * 0.09);
+    ctx.lineTo(W, BASE - 40);
+    ctx.lineTo(W, BASE + 10);
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawMountain() {
+    ctx.beginPath();
+    ctx.moveTo(X(0), BASE + 26);
+    for (const [d] of PROFILE) ctx.lineTo(X(d), Y(d));
+    ctx.lineTo(X(100), BASE + 26);
+    ctx.closePath();
+    ctx.fillStyle = C.inset;
+    ctx.fill();
+
+    // altitude tint: one smooth vertical gradient clipped to the silhouette
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(X(0), BASE + 26);
+    for (const [d] of PROFILE) ctx.lineTo(X(d), Y(d));
+    ctx.lineTo(X(100), BASE + 26);
+    ctx.closePath();
+    ctx.clip();
+    const tint = ctx.createLinearGradient(0, BASE, 0, Y(COL));
+    tint.addColorStop(0, 'rgba(217, 119, 6, 0)');
+    tint.addColorStop(1, 'rgba(217, 119, 6, 0.26)');
+    ctx.fillStyle = tint;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+
+    // snow cap — must clear the 6px road stroke by a legible margin,
+    // or it reads as a rendering gap at the apex
+    ctx.fillStyle = C.panel;
+    ctx.beginPath();
+    ctx.moveTo(X(42.4), Y(42.4));
+    ctx.lineTo(X(45), Y(45));
+    ctx.lineTo(X(47.6), Y(47.6));
+    ctx.lineTo(X(46.8), Y(46.8) + 13);
+    ctx.lineTo(X(45.9), Y(45.9) + 8);
+    ctx.lineTo(X(45), Y(45) + 15);
+    ctx.lineTo(X(44.1), Y(44.1) + 9);
+    ctx.lineTo(X(43.2), Y(43.2) + 14);
+    ctx.closePath();
+    ctx.fill();
+
+    // road ribbon + centreline
+    ctx.strokeStyle = C.ink;
+    ctx.lineWidth = 6;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(0));
+    for (const [d] of PROFILE) ctx.lineTo(X(d), Y(d));
+    ctx.stroke();
+    ctx.strokeStyle = C.panel;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([7, 9]);
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(0));
+    for (const [d] of PROFILE) ctx.lineTo(X(d), Y(d));
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawTrees() {
+    ctx.fillStyle = C.faint;
+    for (const [td, s] of [[3, 1], [8.5, 0.8], [11, 1.1], [79.5, 1], [85, 0.85], [91, 1.05], [96.5, 0.8]] as [number, number][]) {
+      const x = X(td), y = Y(td) - 3;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(s, s);
+      ctx.beginPath();
+      ctx.moveTo(-5, 0); ctx.lineTo(0, -9); ctx.lineTo(5, 0); ctx.closePath();
+      ctx.moveTo(-4, -6); ctx.lineTo(0, -14); ctx.lineTo(4, -6); ctx.closePath();
+      ctx.fill();
+      ctx.fillRect(-1, 0, 2, 3);
+      ctx.restore();
+    }
+  }
+
+  function drawRailway() {
+    const x0 = X(STATION_A), y0 = Y(STATION_A) + 22;
+    const x1 = X(STATION_B), y1 = Y(STATION_B) + 22;
+    const len = Math.hypot(x1 - x0, y1 - y0);
+    const ux = (x1 - x0) / len, uy = (y1 - y0) / len;
+    ctx.strokeStyle = C.faint;
+    ctx.lineWidth = 1.4;
+    line(x0, y0, x1, y1);
+    for (let s = 8; s < len; s += 16) {
+      const sx = x0 + ux * s, sy = y0 + uy * s;
+      line(sx - uy * 3.5, sy + ux * 3.5, sx + uy * 3.5, sy - ux * 3.5);
+    }
+    // in v3, the branch line that runs on toward the finish — inside the radius
+    if (version === 3) {
+      ctx.globalAlpha = 0.5;
+      ctx.setLineDash([2, 4]);
+      line(x1, y1, X(96), Y(96) + 16);
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    }
+    for (const sd of [STATION_A, STATION_B]) {
+      const sx = X(sd), sy = Y(sd) + 22;
+      ctx.fillStyle = C.faint;
+      ctx.fillRect(sx - 10, sy - 4, 20, 4);
+      ctx.beginPath();
+      ctx.moveTo(sx - 8, sy - 4); ctx.lineTo(sx, sy - 12); ctx.lineTo(sx + 8, sy - 4);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.font = '11px ui-monospace, Menlo, monospace';
+    ctx.fillStyle = C.faint;
+    ctx.fillText('GARE', X(STATION_A) - 14, Y(STATION_A) + 36);
+  }
+
+  function drawRoadFurniture() {
+    ctx.fillStyle = C.faint;
+    ctx.font = '13px ui-monospace, Menlo, monospace';
+    for (let km = 0; km <= 100; km += 25) {
+      ctx.fillRect(X(km) - 0.5, BASE + 28, 1, 5);
+      ctx.fillText(`${km}`, X(km) - 7, BASE + 48);
+    }
+    ctx.fillText('km', X(100) + 20, BASE + 48);
+
+    chip(X(COL), Y(COL) - 28, 'COL · 1 200 m · 1ª CAT');
+
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+    line(X(0), Y(0), X(0), Y(0) - 34);
+    ctx.fillStyle = C.ink;
+    ctx.fillRect(X(0), Y(0) - 34, 15, 10);
+    ctx.font = '12px ui-monospace, Menlo, monospace';
+    ctx.fillStyle = C.faint;
+    ctx.fillText('DÉPART', X(0) - 10, Y(0) - 44);
+
+    const fx = X(100), fy = Y(100);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+    line(fx - 20, fy, fx - 20, fy - 70);
+    line(fx + 20, fy, fx + 20, fy - 70);
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 2; j++) {
+        ctx.fillStyle = (i + j) % 2 ? C.panel : C.ink;
+        ctx.fillRect(fx - 20 + i * 5, fy - 70 + j * 5, 5, 5);
+      }
+    }
+    ctx.fillStyle = C.faint;
+    ctx.fillText('ARRIVÉE', fx - 26, fy - 90);
+
+    if (version < 4) {
+      ctx.strokeStyle = C.bad;
+      ctx.globalAlpha = 0.45;
+      ctx.setLineDash([3, 5]);
+      ctx.beginPath(); ctx.arc(fx - 8, fy - 10, 40, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    }
+
+    if (version === 4) {
+      for (const m of MATS) {
+        ctx.fillStyle = rider.d >= m ? C.good : C.faint;
+        ctx.save();
+        ctx.translate(X(m), Y(m));
+        ctx.rotate(ANG(m));
+        ctx.fillRect(-7, -3, 14, 5);
+        ctx.restore();
+        if (rider.d >= m) {
+          ctx.fillStyle = C.good;
+          ctx.font = '13px ui-monospace, Menlo, monospace';
+          ctx.fillText('✓', X(m) - 4, Y(m) - 14);
+        }
+      }
+    }
+  }
+
+  function drawCar(d: number) {
+    ctx.save();
+    ctx.translate(X(d), Y(d));
+    ctx.rotate(TILT(d));
+    ctx.fillStyle = C.ink;
+    ctx.beginPath();
+    (ctx as any).roundRect
+      ? (ctx as any).roundRect(-30, -26, 60, 16, 4)
+      : ctx.rect(-30, -26, 60, 16);
+    ctx.fill();
+    ctx.beginPath();
+    (ctx as any).roundRect
+      ? (ctx as any).roundRect(-17, -38, 31, 13, 4)
+      : ctx.rect(-17, -38, 31, 13);
+    ctx.fill();
+    ctx.fillStyle = C.panel;
+    ctx.fillRect(-13, -36, 12, 9);
+    ctx.fillRect(2, -36, 9, 9);
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.arc(-6, -42, 4, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(5, -42, 4, 0, Math.PI * 2); ctx.stroke();
+    line(-6, -42, 1, -46); line(1, -46, 5, -42); line(-6, -42, 5, -42);
+    disc(-17, -8, 7.5, C.ink); disc(17, -8, 7.5, C.ink);
+    disc(-17, -8, 3, C.panel); disc(17, -8, 3, C.panel);
+    ctx.restore();
+  }
+
+  function drawTrainScene() {
+    const onTrain = rider.pose === 'train';
+    let f = 0;
+    if (onTrain) f = (rider.d - STATION_A) / (STATION_B - STATION_A);
+    else if (rider.d > STATION_A) return;
+    const x0 = X(STATION_A), y0 = Y(STATION_A) + 22;
+    const x1 = X(STATION_B), y1 = Y(STATION_B) + 22;
+    const tx = x0 + (x1 - x0) * f, ty = y0 + (y1 - y0) * f;
+    const ang = Math.atan2(y1 - y0, x1 - x0);
+    ctx.save();
+    ctx.translate(tx, ty);
+    ctx.rotate(ang);
+    for (let i = 0; i < 3; i++) {
+      const ox = -i * 40;
+      ctx.fillStyle = C.ink;
+      ctx.beginPath();
+      (ctx as any).roundRect
+        ? (ctx as any).roundRect(ox - 18, -20, 36, 16, i === 0 ? 5 : 2)
+        : ctx.rect(ox - 18, -20, 36, 16);
+      ctx.fill();
+      if (i > 0) { ctx.strokeStyle = C.ink; ctx.lineWidth = 2; line(ox + 18, -10, ox + 22, -10); }
+      ctx.fillStyle = C.panel;
+      if (i === 1) {
+        // one big window for our passenger
+        ctx.fillRect(ox - 8, -18, 16, 11);
+      } else {
+        ctx.fillRect(ox - 13, -17, 8, 7);
+        ctx.fillRect(ox - 2, -17, 8, 7);
+        ctx.fillRect(ox + 9, -17, 6, 7);
+      }
+      disc(ox - 11, -3, 3.4, C.ink); disc(ox + 11, -3, 3.4, C.ink);
+      disc(ox - 11, -3, 1.3, C.panel); disc(ox + 11, -3, 1.3, C.panel);
+    }
+    if (onTrain && !reduced) {
+      ctx.globalAlpha = 0.4;
+      disc(24 - (clock * 20) % 18, -26 - ((clock * 20) % 18) * 0.4, 3, C.faint);
+      ctx.globalAlpha = 1;
+    }
+    if (onTrain) {
+      // our rider in the big window, living their best life
+      disc(-40, -12, 4.5, C.accent);
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6;
+      line(-37, -14, -33.5, -13);
+    }
+    ctx.restore();
+  }
+
+  function drawRider() {
+    const d = rider.d, pose = rider.pose;
+    const moving = pose !== 'wait' && pose !== 'win';
+    const bob = reduced || !moving ? 0 : Math.sin(clock * 9) * 1;
+    const crank = pose === 'tuck' ? 0 : reduced || !moving ? 0.9 : clock * (pose === 'climb' ? 7 : 10);
+
+    ctx.save();
+    ctx.translate(X(d), Y(d) - 1);
+    if (moving) ctx.rotate(TILT(d));
+    ctx.scale(1.15, 1.15);
+
+    const RW = 10, HUB = -13, WB = 14.5;
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2.4;
+    for (const wx of [-WB, WB]) {
+      ctx.beginPath(); ctx.arc(wx, HUB, RW, 0, Math.PI * 2); ctx.stroke();
+      ctx.lineWidth = 0.9;
+      ctx.globalAlpha = pose === 'tuck' ? 0.3 : 0.55;
+      const sp = moving && !reduced ? clock * 14 : 0.6;
+      for (let k = 0; k < 2; k++) {
+        const a = sp + (k * Math.PI) / 2;
+        line(wx - Math.cos(a) * RW, HUB - Math.sin(a) * RW, wx + Math.cos(a) * RW, HUB + Math.sin(a) * RW);
+      }
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 2.4;
+    }
+
+    const bbx = 0, bby = -12;
+    const saddle: [number, number] = [-8, -36];
+    const head: [number, number] = [12, -33];
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2.6; ctx.lineCap = 'round';
+    line(bbx, bby, saddle[0], saddle[1]);
+    line(bbx, bby, head[0], head[1]);
+    line(saddle[0], saddle[1], head[0], head[1]);
+    line(head[0], head[1], WB, HUB);
+    line(bbx, bby, -WB, HUB);
+    line(saddle[0], saddle[1], -WB, HUB);
+    line(saddle[0] - 4, saddle[1] - 1.5, saddle[0] + 3, saddle[1] - 1.5);
+    line(head[0], head[1], head[0] + 3, head[1] - 5);
+    line(head[0] + 3, head[1] - 5, head[0] + 6, head[1] - 3);
+    disc(bbx, bby, 4, C.ink);
+
+    const pedalA: [number, number] = [bbx + Math.cos(crank) * 7, bby + Math.sin(crank) * 7];
+    const pedalB: [number, number] = [bbx - Math.cos(crank) * 7, bby - Math.sin(crank) * 7];
+
+    let hip: [number, number], shoulder: [number, number], headC: [number, number];
+    if (pose === 'tuck') {
+      // the supertuck: body flat along the top tube
+      hip = [1, -30]; shoulder = [13, -33]; headC = [18.5, -34];
+    } else if (pose === 'win') {
+      // kept below the finish banner so the salute stays visible
+      hip = [-7, -33]; shoulder = [1, -46]; headC = [2, -52.5];
+    } else if (pose === 'climb') {
+      hip = [-7, -36]; shoulder = [10, -47]; headC = [14.5, -51];
+    } else if (pose === 'wait') {
+      // off the bike, on the platform, coffee in hand
+      hip = [-22, -34]; shoulder = [-22, -50]; headC = [-22, -56];
+    } else {
+      hip = [-7, -37]; shoulder = [9, -50]; headC = [13.5, -54.5];
+    }
+
+    if (pose === 'wait') {
+      // standing figure beside the leaned bike
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 3;
+      line(-24, -13, -22, -34); line(-20, -13, -22, -34);
+      jersey(hip, shoulder);
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 2.8;
+      line(-22, -47, -14, -43); // arm out, holding the cup
+      disc(-13, -43, 2.2, C.ink); // the coffee
+      ctx.strokeStyle = C.faint; ctx.lineWidth = 1;
+      line(-13, -48, -13, -46); line(-11.5, -49, -11.5, -47); // steam
+    } else {
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 3;
+      for (const p of [pedalA, pedalB]) {
+        const kx = (hip[0] + p[0]) / 2 + 4.5, ky = (hip[1] + p[1]) / 2 - 1.5;
+        ctx.beginPath(); ctx.moveTo(hip[0], hip[1]); ctx.lineTo(kx, ky); ctx.lineTo(p[0], p[1]); ctx.stroke();
+      }
+      jersey([hip[0], hip[1] + bob * 0.3], [shoulder[0], shoulder[1] + bob * 0.5]);
+      ctx.strokeStyle = C.accent;
+      ctx.lineWidth = 2.8;
+      if (pose === 'win') {
+        line(shoulder[0], shoulder[1], shoulder[0] - 9, shoulder[1] - 11);
+        line(shoulder[0], shoulder[1], shoulder[0] + 10, shoulder[1] - 11);
+      } else if (pose === 'tuck') {
+        line(shoulder[0], shoulder[1], head[0] + 3, head[1] - 4);
+      } else {
+        line(shoulder[0], shoulder[1] + bob * 0.5, head[0] + 4, head[1] - 5);
+      }
+    }
+
+    disc(headC[0], headC[1] + bob * 0.4, 4.3, C.accent);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6;
+    if (pose !== 'win') line(headC[0] + 3, headC[1] - 2 + bob * 0.4, headC[0] + 7, headC[1] - 1 + bob * 0.4);
+    ctx.restore();
+  }
+
+  // filled jersey quad — gives the torso real visual weight
+  function jersey(hip: [number, number], shoulder: [number, number]) {
+    const dx = shoulder[0] - hip[0], dy = shoulder[1] - hip[1];
+    const len = Math.hypot(dx, dy) || 1;
+    const px = (-dy / len) * 3.2, py = (dx / len) * 3.2;
+    ctx.fillStyle = C.accent;
+    ctx.beginPath();
+    ctx.moveTo(hip[0] - px, hip[1] - py);
+    ctx.lineTo(hip[0] + px, hip[1] + py);
+    ctx.lineTo(shoulder[0] + px * 0.7, shoulder[1] + py * 0.7);
+    ctx.lineTo(shoulder[0] - px * 0.7, shoulder[1] - py * 0.7);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawParticles(kind: 'confetti' | 'text') {
+    const alive: typeof particles = [];
+    for (const p of particles) {
+      const isConfetti = !!p.col;
+      if ((kind === 'confetti') !== isConfetti) { alive.push(p); continue; }
+      p.x += p.vx; p.y += p.vy; p.vy += isConfetti ? 0.12 : 0;
+      ctx.globalAlpha = Math.max(0, Math.min(1, 1 - p.age / 60));
+      if (p.text) {
+        ctx.fillStyle = C.accent;
+        ctx.font = '600 15px ui-monospace, Menlo, monospace';
+        ctx.fillText(p.text, p.x, p.y);
+      } else if (p.col) {
+        ctx.fillStyle = p.col;
+        ctx.fillRect(p.x, p.y, 4, 4);
+      }
+      if (++p.age < 60) alive.push(p);
+    }
+    ctx.globalAlpha = 1;
+    particles = alive;
+  }
+
+  // ---- loop ----------------------------------------------------------------
+  let last = 0;
+  function frame(t: number) {
+    requestAnimationFrame(frame);
+    if (!visible || userPaused) { last = t; return; }
+    if (!last) last = t;
+    const dt = Math.min(0.05, (t - last) / 1000);
+    last = t;
+    step(dt);
+    draw();
+  }
+
+  new IntersectionObserver(
+    (es) => { visible = es[0].isIntersecting; },
+    { threshold: 0.1 }
+  ).observe(canvas);
+
+  finalEl.hidden = true; // visible only as the finale (or with JS off)
+  refreshColors();
+  renderSpec();
+  startAct();
+  stepOnce(); // paint the first frame even when starting paused
+  requestAnimationFrame(frame);
+</script>
