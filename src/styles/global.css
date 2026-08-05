@@ -293,3 +293,7 @@ main { padding: 2.5rem 0 4rem; }
   font-size: 0.92rem;
   margin: 0;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}

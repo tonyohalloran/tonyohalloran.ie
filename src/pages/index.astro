@@ -26,13 +26,20 @@ const fmt = (d: Date) =>
         the bikes are.
       </p>
     </div>
-    <img
-      class="hero-img"
-      src="/images/profile.jpeg"
-      alt="Tony O'Halloran in a cycling helmet on a gravel road, grinning"
-      width="1400"
-      height="1050"
-    />
+    <p class="hero-cue mono">
+      <a href="#commissaire">first, though — you have a race to&nbsp;referee&nbsp;↓</a>
+    </p>
+    <figure class="hero-polaroid">
+      <img
+        src="/images/profile.jpeg"
+        alt="Tony O'Halloran in a cycling helmet on a gravel road, grinning"
+        width="1400"
+        height="1050"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <figcaption class="mono">fig. 1 — the bikes: confirmed</figcaption>
+    </figure>
   </section>
 
   <Commissaire />
@@ -85,24 +92,64 @@ const fmt = (d: Date) =>
 <style>
   .hero {
     margin: 1.5rem 0 0;
-    display: flex;
-    gap: 2.2rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'text img'
+      'cue  img';
+    column-gap: 2.2rem;
     align-items: center;
   }
-  .hero-text { flex: 1 1 24rem; min-width: 0; }
+  .hero-text { grid-area: text; align-self: end; }
   .hero h1 { font-size: clamp(2rem, 5.5vw, 3.2rem); margin: 0.2rem 0 1rem; }
   .hero-body { max-width: 40rem; font-size: 1.05rem; color: var(--ink-soft); }
-  .hero-img {
-    flex: 0 1 17rem;
-    width: 17rem;
+  .hero-cue { grid-area: cue; align-self: start; margin: 1.3rem 0 0; font-size: 0.78rem; }
+  .hero-cue a { color: var(--accent); text-decoration: none; }
+  .hero-cue a:hover { text-decoration: underline; }
+
+  .hero-polaroid {
+    grid-area: img;
+    width: 18rem;
     max-width: 100%;
-    height: auto;
-    border-radius: 12px;
+    margin: 0.5rem 0.6rem 0 0;
+    padding: 0.55rem 0.55rem 0.45rem;
+    background: var(--bg-panel);
     border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--ink) 12%, transparent);
+    transform: rotate(2.2deg);
+  }
+  .hero-polaroid img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 2px;
+  }
+  .hero-polaroid figcaption {
+    padding: 0.5rem 0.15rem 0.1rem;
+    font-size: 0.68rem;
+    color: var(--ink-faint);
+    text-align: center;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-polaroid { transition: transform 0.25s ease; }
+    .hero-polaroid:hover { transform: rotate(0deg); }
   }
   @media (max-width: 760px) {
-    .hero { flex-direction: column; align-items: stretch; }
-    .hero-img { width: 100%; flex-basis: auto; }
+    .hero {
+      grid-template-columns: 1fr;
+      grid-template-areas: 'text' 'img' 'cue';
+    }
+    .hero-polaroid {
+      width: 100%;
+      margin: 1.2rem 0 0.4rem;
+      transform: rotate(0.8deg);
+    }
+    .hero-polaroid img {
+      aspect-ratio: 2 / 1;
+      object-fit: cover;
+      object-position: 18% 35%;
+    }
   }
 
   .home-section { margin-top: 3.5rem; }
