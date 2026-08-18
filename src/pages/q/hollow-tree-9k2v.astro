@@ -1,0 +1,94 @@
+---
+/**
+ * Hidden, password-gated page.
+ *
+ * Content in ../../hidden/content.html is encrypted at BUILD time (AES-256-GCM,
+ * PBKDF2-derived key) so the deployed HTML contains only ciphertext. The
+ * browser derives the key from the typed password and decrypts in place.
+ * Password: HIDDEN_PAGE_PASSWORD env, else src/hidden/password.txt.
+ */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pbkdf2Sync, randomBytes, createCipheriv } from 'node:crypto';
+import Base from '../../layouts/Base.astro';
+
+// Resolve from the project root: the built chunk's import.meta.url lives in dist/.
+const read = (rel: string) => readFileSync(resolve(process.cwd(), rel), 'utf8');
+const plaintext = read('src/hidden/content.html');
+const password = (process.env.HIDDEN_PAGE_PASSWORD ?? read('src/hidden/password.txt')).trim();
+if (!password) throw new Error('hidden page: empty password');
+
+const ITER = 200_000;
+const salt = randomBytes(16);
+const iv = randomBytes(12);
+const key = pbkdf2Sync(password, salt, ITER, 32, 'sha256');
+const cipher = createCipheriv('aes-256-gcm', key, iv);
+const ct = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final(), cipher.getAuthTag()]);
+const payload = { salt: salt.toString('base64'), iv: iv.toString('base64'), ct: ct.toString('base64'), iter: ITER };
+---
+
+<Base title="…" description="" noindex>
+  <div id="gate">
+    <p class="kicker">/hidden</p>
+    <h1 class="page-title">Password</h1>
+    <form id="unlock" autocomplete="off">
+      <input id="pw" type="password" placeholder="password" autofocus />
+      <button type="submit">open</button>
+    </form>
+    <p id="err" class="err" hidden>Nope.</p>
+  </div>
+  <div id="content" hidden></div>
+  <script is:inline id="payload" type="application/json" set:html={JSON.stringify(payload)} />
+  <script is:inline>
+    (() => {
+      const P = JSON.parse(document.getElementById('payload').textContent);
+      const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+      const enc = new TextEncoder(), dec = new TextDecoder();
+      const KEY = 'hidden-pw';
+
+      async function decrypt(pw) {
+        const base = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']);
+        const key = await crypto.subtle.deriveKey(
+          { name: 'PBKDF2', salt: b64(P.salt), iterations: P.iter, hash: 'SHA-256' },
+          base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+        const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(P.iv) }, key, b64(P.ct));
+        return dec.decode(pt);
+      }
+
+      async function tryOpen(pw, remember) {
+        try {
+          const html = await decrypt(pw);
+          if (remember) sessionStorage.setItem(KEY, pw);
+          document.getElementById('content').innerHTML = html;
+          document.getElementById('content').hidden = false;
+          document.getElementById('gate').hidden = true;
+          return true;
+        } catch { return false; }
+      }
+
+      const saved = sessionStorage.getItem(KEY);
+      if (saved) tryOpen(saved, false);
+
+      document.getElementById('unlock').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const ok = await tryOpen(document.getElementById('pw').value, true);
+        document.getElementById('err').hidden = ok;
+      });
+    })();
+  </script>
+</Base>
+
+<style>
+  #unlock { display: flex; gap: 0.5rem; max-width: 22rem; }
+  #unlock input {
+    flex: 1; font: inherit; padding: 0.5rem 0.7rem;
+    background: transparent; color: inherit;
+    border: 1px solid var(--line); border-radius: 4px;
+  }
+  #unlock button {
+    font: inherit; padding: 0.5rem 0.9rem; cursor: pointer;
+    background: transparent; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 4px;
+  }
+  .err { color: var(--accent); margin-top: 0.75rem; }
+</style>
