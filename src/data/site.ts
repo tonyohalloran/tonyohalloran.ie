@@ -6,7 +6,7 @@ export const links = {
   github: 'https://github.com/tonyohalloran',
   linkedin: 'https://linkedin.com/in/tony-o-halloran-38098a142',
   scholar: 'https://scholar.google.com/citations?user=ywfC3g4AAAAJ',
-  substack: 'https://tonyo.substack.com',
+  substack: '', // TODO(tony): real Substack URL (tonyo.substack.com was someone else's)
 };
 
 // Unified writing/work stream. type: 'paper' | 'talk' | 'post' handled in pages.
