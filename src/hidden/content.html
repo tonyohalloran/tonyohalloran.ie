@@ -1,47 +1,13 @@
 <div class="yp">
 <div class="yp-hero">
-  <!-- Yoshi -->
-  <svg class="mascot yoshi" viewBox="0 0 120 130" aria-hidden="true">
-    <ellipse cx="60" cy="118" rx="34" ry="8" fill="rgba(0,0,0,.12)"/>
-    <!-- egg shell -->
-    <path d="M60 22c-22 0-38 26-38 54s17 42 38 42 38-14 38-42S82 22 60 22z" fill="#fff" stroke="#3a7d2e" stroke-width="3"/>
-    <circle cx="44" cy="62" r="7" fill="#5cc03a"/><circle cx="76" cy="52" r="6" fill="#5cc03a"/>
-    <circle cx="66" cy="86" r="8" fill="#5cc03a"/><circle cx="40" cy="92" r="5" fill="#5cc03a"/><circle cx="82" cy="80" r="5" fill="#5cc03a"/>
-    <!-- yoshi head peeking -->
-    <ellipse cx="60" cy="34" rx="30" ry="24" fill="#5cc03a" stroke="#3a7d2e" stroke-width="3"/>
-    <ellipse cx="72" cy="40" rx="18" ry="12" fill="#5cc03a" stroke="#3a7d2e" stroke-width="3"/>
-    <ellipse cx="88" cy="42" rx="12" ry="9" fill="#5cc03a" stroke="#3a7d2e" stroke-width="3"/>
-    <circle cx="90" cy="41" r="2.5" fill="#3a7d2e"/>
-    <ellipse cx="52" cy="26" rx="8" ry="10" fill="#fff" stroke="#3a7d2e" stroke-width="2.5"/>
-    <ellipse cx="66" cy="26" rx="8" ry="10" fill="#fff" stroke="#3a7d2e" stroke-width="2.5"/>
-    <circle cx="54" cy="28" r="3.5" fill="#222"/><circle cx="68" cy="28" r="3.5" fill="#222"/>
-    <path d="M42 14c4-8 8-8 10 0M60 12c4-8 8-8 10 0" fill="#e0342b" stroke="#a52217" stroke-width="2"/>
-    <ellipse cx="46" cy="42" rx="6" ry="4" fill="#ff8ab0" opacity=".7"/>
-  </svg>
+  <img class="mascot yoshi" src="/images/q/yoshi.png" alt="Yoshi" />
 
   <div class="yp-title">
     <p class="kicker">/hidden · 🍮 medical emergency 🥚</p>
     <h1 class="page-title">Time remaining until Tony dies without a kiss</h1>
   </div>
 
-  <!-- Pompompurin -->
-  <svg class="mascot purin" viewBox="0 0 130 130" aria-hidden="true">
-    <ellipse cx="65" cy="120" rx="40" ry="8" fill="rgba(0,0,0,.12)"/>
-    <ellipse cx="65" cy="78" rx="52" ry="42" fill="#ffd54a" stroke="#c9922a" stroke-width="3"/>
-    <!-- ears -->
-    <path d="M18 60c-6 12-6 26 2 34 6-8 8-20 6-30z" fill="#ffd54a" stroke="#c9922a" stroke-width="3"/>
-    <path d="M112 60c6 12 6 26-2 34-6-8-8-20-6-30z" fill="#ffd54a" stroke="#c9922a" stroke-width="3"/>
-    <!-- beret -->
-    <ellipse cx="62" cy="40" rx="40" ry="14" fill="#7a4a1e"/>
-    <path d="M24 42c4-16 24-26 40-24s34 12 36 24c-12-8-24-12-38-11S34 34 24 42z" fill="#8a5624" stroke="#5c3814" stroke-width="3"/>
-    <circle cx="66" cy="16" r="4" fill="#5c3814"/>
-    <!-- face -->
-    <circle cx="48" cy="72" r="4" fill="#3b2a12"/><circle cx="82" cy="72" r="4" fill="#3b2a12"/>
-    <ellipse cx="65" cy="88" rx="7" ry="5" fill="#3b2a12"/>
-    <path d="M52 96q13 12 26 0" fill="none" stroke="#3b2a12" stroke-width="3" stroke-linecap="round"/>
-    <ellipse cx="34" cy="90" rx="7" ry="4" fill="#ffb0a0" opacity=".7"/>
-    <ellipse cx="96" cy="90" rx="7" ry="4" fill="#ffb0a0" opacity=".7"/>
-  </svg>
+  <img class="mascot purin" src="/images/q/purin.png" alt="Pompompurin, looking back over his shoulder" />
 </div>
 
 <div class="doom" id="doom" aria-live="polite">
@@ -140,14 +106,14 @@
 <style>
   .yp { --yoshi: #5cc03a; --yoshi-dk: #3a7d2e; --purin: #ffd54a; --purin-dk: #c9922a; --beret: #7a4a1e; }
   .yp-hero { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: end; }
-  .yp-hero .mascot { width: 6.5rem; height: auto; }
+  .yp-hero .mascot { width: 7.5rem; height: auto; object-fit: contain; }
   .yp-hero .yoshi { animation: bob 2.4s ease-in-out infinite; }
-  .yp-hero .purin { animation: bob 2.4s ease-in-out infinite 1.2s; }
+  .yp-hero .purin { animation: bob 2.4s ease-in-out infinite 1.2s; width: 9rem; }
   @keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
   @media (max-width: 560px) {
     .yp-hero { grid-template-columns: 1fr 1fr; }
     .yp-hero .yp-title { grid-column: 1 / -1; order: -1; }
-    .yp-hero .mascot { width: 5rem; justify-self: center; }
+    .yp-hero .mascot { width: 6rem; justify-self: center; }
   }
   .yp .kicker { color: var(--purin-dk); }
   .yp .page-title { color: var(--yoshi-dk); }
