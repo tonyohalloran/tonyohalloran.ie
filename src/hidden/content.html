@@ -1,7 +1,121 @@
-<p class="kicker">/hidden</p>
-<h1 class="page-title">You found it</h1>
-<p>
-  This page is not linked from anywhere and won't show up in search.
-  Whatever goes here is only readable with the password.
+<p class="kicker">/hidden · medical emergency</p>
+<h1 class="page-title">Time remaining until Tony dies without a kiss</h1>
+
+<div class="doom" id="doom" aria-live="polite">
+  <div class="cell"><span id="d">--</span><small>days</small></div>
+  <div class="cell"><span id="h">--</span><small>hours</small></div>
+  <div class="cell"><span id="m">--</span><small>mins</small></div>
+  <div class="cell"><span id="s">--</span><small>secs</small></div>
+</div>
+<p class="status" id="status">Calculating prognosis…</p>
+
+<p class="controls">
+  <button id="kissed" type="button">💋 kiss administered — reset the clock</button>
+  <span id="last" class="mono"></span>
 </p>
-<!-- TODO(tony): put the actual content here. Plain HTML; site styles apply. -->
+
+<h2 class="mono">Case notes</h2>
+<p>
+  On the evening of 18 August 2026 the patient, mid-way through a paper and
+  nursing a bad back, made the following clinical statement. The condition is
+  documented below verbatim, as is the treatment plan.
+</p>
+
+<pre class="chat">[8/18/26, 11:05:23 p.m.] Tony: ust want to sleeeeeep
+[8/18/26, 11:06:58 p.m.] Georgina: go sleeeeep my love
+[8/18/26, 11:13:40 p.m.] Tony: I can't
+[8/18/26, 11:13:42 p.m.] Tony: not done
+[8/18/26, 11:14:31 p.m.] Georgina: whats left
+[8/18/26, 11:15:52 p.m.] Tony: like 40 mins
+[8/18/26, 11:15:58 p.m.] Tony: taking a break rn cause of my back
+[8/18/26, 11:16:14 p.m.] Georgina: awww poor thing
+[8/18/26, 11:17:38 p.m.] Tony: I know I need a kiss
+[8/18/26, 11:22:39 p.m.] Georgina: wtf is this
+[8/18/26, 11:22:48 p.m.] Georgina: youll get one soon
+[8/18/26, 11:22:59 p.m.] Tony: something that darren saw on the footpath
+[8/18/26, 11:23:14 p.m.] Tony: <mark>I hope so or I will die</mark>
+[8/18/26, 11:23:55 p.m.] Georgina: okayy
+[8/18/26, 11:24:07 p.m.] Georgina: <mark>not on my watch</mark></pre>
+
+<p class="fine">
+  Prognosis: 72 hours from onset (23:23:14 IST, 18 Aug 2026), per peer-reviewed
+  guidelines the patient made up. Each administered kiss resets the clock for
+  another 72 hours. Treatment provider has committed, on the record, to
+  "not on my watch". This page holds her to it.
+</p>
+
+<script>
+  (() => {
+    const ONSET = Date.parse('2026-08-18T22:23:14Z'); // 23:23:14 Irish time
+    const WINDOW = 72 * 3600 * 1000;
+    const KEY = 'last-kiss';
+    const $ = (id) => document.getElementById(id);
+    const pad = (n) => String(n).padStart(2, '0');
+
+    function deadline() {
+      const last = Number(localStorage.getItem(KEY)) || ONSET;
+      return last + WINDOW;
+    }
+    function showLast() {
+      const last = Number(localStorage.getItem(KEY));
+      $('last').textContent = last
+        ? 'last kiss: ' + new Date(last).toLocaleString('en-IE')
+        : 'no kiss recorded since onset';
+    }
+    function tick() {
+      let ms = deadline() - Date.now();
+      const doom = $('doom');
+      if (ms <= 0) {
+        ms = 0;
+        $('status').textContent = '💀 Time of death recorded. A kiss may still revive him — try it.';
+        doom.classList.add('dead');
+      } else {
+        const hrs = ms / 3600000;
+        $('status').textContent =
+          hrs > 48 ? 'Condition: stable, for now.' :
+          hrs > 24 ? 'Condition: deteriorating. Kiss recommended.' :
+          hrs > 6  ? 'Condition: critical. Kiss urgently required.' :
+                     'Condition: DO SOMETHING.';
+        doom.classList.toggle('critical', hrs <= 24);
+        doom.classList.remove('dead');
+      }
+      const s = Math.floor(ms / 1000);
+      $('d').textContent = Math.floor(s / 86400);
+      $('h').textContent = pad(Math.floor(s / 3600) % 24);
+      $('m').textContent = pad(Math.floor(s / 60) % 60);
+      $('s').textContent = pad(s % 60);
+    }
+    $('kissed').addEventListener('click', () => {
+      localStorage.setItem(KEY, String(Date.now()));
+      showLast(); tick();
+    });
+    showLast(); tick(); setInterval(tick, 1000);
+  })();
+</script>
+
+<style>
+  .doom { display: flex; gap: 0.75rem; margin: 1.5rem 0 0.5rem; flex-wrap: wrap; }
+  .doom .cell {
+    flex: 1 1 4.5rem; text-align: center; padding: 0.9rem 0.5rem;
+    border: 1px solid var(--line); border-radius: 6px;
+  }
+  .doom span { display: block; font-size: 2.2rem; font-variant-numeric: tabular-nums; line-height: 1; }
+  .doom small { display: block; margin-top: 0.4rem; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+  .doom.critical span { color: var(--accent); }
+  .doom.dead .cell { border-style: dashed; opacity: 0.6; }
+  .status { color: var(--ink-soft); font-style: italic; margin: 0 0 1rem; }
+  .controls { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 2rem; }
+  .controls button {
+    font: inherit; padding: 0.55rem 0.9rem; cursor: pointer;
+    background: transparent; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 4px;
+  }
+  .controls .mono { font-size: 0.8rem; color: var(--ink-soft); }
+  h2.mono { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); margin: 1.5rem 0 0.4rem; }
+  .chat {
+    font-size: 0.8rem; line-height: 1.5; padding: 1rem; overflow-x: auto;
+    border: 1px dashed var(--line); border-radius: 6px; white-space: pre-wrap;
+  }
+  .chat mark { background: transparent; color: var(--accent); font-weight: 600; }
+  .fine { font-size: 0.85rem; color: var(--ink-soft); }
+</style>

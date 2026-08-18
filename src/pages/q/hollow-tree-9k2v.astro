@@ -59,8 +59,16 @@ const payload = { salt: salt.toString('base64'), iv: iv.toString('base64'), ct: 
         try {
           const html = await decrypt(pw);
           if (remember) sessionStorage.setItem(KEY, pw);
-          document.getElementById('content').innerHTML = html;
-          document.getElementById('content').hidden = false;
+          const box = document.getElementById('content');
+          box.innerHTML = html;
+          // innerHTML doesn't execute <script>; re-create them so they run.
+          box.querySelectorAll('script').forEach((old) => {
+            const s = document.createElement('script');
+            [...old.attributes].forEach((a) => s.setAttribute(a.name, a.value));
+            s.textContent = old.textContent;
+            old.replaceWith(s);
+          });
+          box.hidden = false;
           document.getElementById('gate').hidden = true;
           return true;
         } catch { return false; }
